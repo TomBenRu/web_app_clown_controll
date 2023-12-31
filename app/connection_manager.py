@@ -5,10 +5,9 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket, client_id):
+    async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        await self.broadcast(f'{client_id} has joined.', websocket)
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
@@ -38,6 +37,11 @@ class MessageHandler:
         await manager.broadcast(message, websocket)
 
     @staticmethod
-    async def handle_client_leave(client_id: int, websocket: WebSocket):
+    async def handle_client_joined_message(client_id: int, websocket: WebSocket):
+        message = f'{client_id} has joined.'
+        await manager.broadcast(message, websocket)
+
+    @staticmethod
+    async def handle_client_leave_message(client_id: int, websocket: WebSocket):
         message = f'Client #{client_id} left the chat'
         await manager.broadcast(message, websocket)
