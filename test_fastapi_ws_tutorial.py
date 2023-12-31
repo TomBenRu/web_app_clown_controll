@@ -1,8 +1,13 @@
+import datetime
+
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
+
+templates = Jinja2Templates(directory='templates')
 
 html = """
 <!DOCTYPE html>
@@ -68,8 +73,10 @@ manager = ConnectionManager()
 
 
 @app.get("/")
-async def get():
-    return HTMLResponse(html)
+async def get(request: Request):
+    return templates.TemplateResponse('chat_clown_call.html',
+                                      context={'request': request,
+                                               'user_name': datetime.datetime.now().strftime('%d.%m.%y-%H/%M/%S')})  # HTMLResponse(html)
 
 
 @app.websocket("/ws/{client_id}")
