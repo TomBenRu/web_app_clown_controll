@@ -24,3 +24,20 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
+
+
+class MessageHandler:
+    @staticmethod
+    async def handle_personal_clown_request_message(data: str, websocket: WebSocket):
+        message = f'You wrote: {data}'
+        await manager.send_personal_message(message, websocket)
+
+    @staticmethod
+    async def handle_broadcast_clown_request_message(data: str, client_id: int, websocket: WebSocket):
+        message = f'Client {client_id} says: {data}'
+        await manager.broadcast(message, websocket)
+
+    @staticmethod
+    async def handle_client_leave(client_id: int, websocket: WebSocket):
+        message = f'Client #{client_id} left the chat'
+        await manager.broadcast(message, websocket)
