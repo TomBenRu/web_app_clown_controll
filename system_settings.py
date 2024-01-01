@@ -1,8 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env')
     """Reads the variables of the most recent .env file in hierarchy. Variable names are not case sensitiv."""
     secret_key: str
     algorithm: str
@@ -12,5 +11,8 @@ class Settings(BaseSettings):
     provider: str
     db_clown_control: str
 
-
-settings = Settings()
+try:
+    settings = Settings()
+except Exception as e:
+    print(f'Trying to get Settings from Environment:\n{e}\nNow I check the .env-file:')
+    settings = Settings(_env_file='.env')
