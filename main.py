@@ -1,15 +1,21 @@
+import uvicorn
+from fastapi import FastAPI
+
 from database import db
-from app import app
+from routers import websocket, department
 
 
-def start_database():
-    db.start_db()
+db.start_db()
+
+app = FastAPI()
+
+app.include_router(websocket.router)
+app.include_router(department.router)
 
 
-def run_application():
-    app.run()
+def run():
+    uvicorn.run(app)
 
 
 if __name__ == '__main__':
-    start_database()
-    run_application()
+    run()
