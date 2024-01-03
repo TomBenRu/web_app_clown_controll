@@ -17,3 +17,8 @@ class Actor(BaseModel):
     created_at: datetime.date
     last_modified: datetime.datetime
     # prep_delete: Optional[datetime.datetime]
+
+
+class TokenData(BaseModel):
+    id: UUID | str | None = None
+    authorizations: list[str]

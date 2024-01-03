@@ -7,7 +7,7 @@ from database import db_services
 
 templates = Jinja2Templates(directory='templates')
 
-router = APIRouter(tags=['Clown-Call'])
+router = APIRouter(prefix='/department', tags=['Clown-Call'])
 
 
 @router.get("/")
