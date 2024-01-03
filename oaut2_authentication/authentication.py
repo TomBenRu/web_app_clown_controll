@@ -72,7 +72,7 @@ def get_authorization_types(user: schemas.User) -> list[AuthorizationTypes]:
 
 
 def authenticate_user(username: str, passwort: str) -> schemas.User | str:
-    if not (user := db_services.User.get_user_by_username(email=username)):
+    if not (user := db_services.User.get_user_by_username(username)):
         raise credentials_exception
     if not verify(passwort, user.password):
         raise credentials_exception

@@ -7,7 +7,7 @@ from oaut2_authentication.authentication import authenticate_user, get_authoriza
 router = APIRouter(tags=['login'])
 
 
-@router.get('/token')
+@router.post('/token')
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         user = authenticate_user(form_data.username, form_data.password)
