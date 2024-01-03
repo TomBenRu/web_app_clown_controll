@@ -1,10 +1,11 @@
 import datetime
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
+from passlib.context import CryptContext
 
-from database import schemas
+from database import schemas, db_services
 from database.emums import AuthorizationTypes
 from system_settings import settings
 
@@ -19,6 +20,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                       detail='Could not validate credentials.',
                                       headers={'WWW-Authenticate': 'Bearer'})
+
+
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+
+def hash_psw(password: str):
+    return pwd_context.hash(password)
+
+
+def verify(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def create_access_token(data: dict) -> str:
@@ -48,31 +60,20 @@ def get_current_user_cookie(request: Request, token_key: str, role: Authorizatio
     return verify_access_token(token, role)
 
 
-def get_authorization_types(user: schemas.PersonShow) -> list[AuthorizationTypes]:
+def get_authorization_types(user: schemas.User) -> list[AuthorizationTypes]:
     auth_types = []
-    if user.team_of_actor:
-        auth_types.append(AuthorizationTypes.actor)
-    if user.project_of_admin:
+    if isinstance(user, schemas.Admin):
         auth_types.append(AuthorizationTypes.admin)
-    if user.teams_of_dispatcher:
-        auth_types.append(AuthorizationTypes.dispatcher)
+    if isinstance(user, schemas.Department):
+        auth_types.append(AuthorizationTypes.department)
+    if isinstance(user, schemas.Actor):
+        auth_types.append(AuthorizationTypes.actor)
     return auth_types
 
 
-def authenticate_user(username: str, passwort: str) -> schemas.PersonShow | str:
-    if username == SUPERVISOR_USERNAME:
-        if utils.verify(passwort, SUPERVISOR_PASSWORD):
-            return 'supervisor'
-    if not (user := services.Person.find_user_by_email(email=username)):
+def authenticate_user(username: str, passwort: str) -> schemas.User | str:
+    if not (user := db_services.User.get_user_by_username(email=username)):
         raise credentials_exception
-    if not utils.verify(passwort, user.password):
+    if not verify(passwort, user.password):
         raise credentials_exception
     return user
-
-
-def verify_actor_username(username: str) -> schemas.PersonShow | None:
-    if user := services.Person.find_user_by_email(username):
-        if user.team_of_actor:
-            return user
-    return None
-
