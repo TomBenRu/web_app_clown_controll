@@ -5,19 +5,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
-class User(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    username: str
-    password: str
-
-
-class Person(User):
-    f_name: str
-    l_name: str
-
-
 class Location(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -34,17 +21,25 @@ class Location(BaseModel):
         return [v for v in values]
 
 
-class Department(User):
+class Department(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: UUID
+    username: str
+    password: str
     name: str
     descriptive_name: str
     location: Location
 
 
-class Actor(Person):
+class Actor(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: UUID
+    username: str
+    password: str
+    f_name: str
+    l_name: str
     artist_name: str
     team_of_actors: Optional['TeamOfActors']
 
@@ -61,8 +56,14 @@ class TeamOfActors(BaseModel):
         return [v for v in values]
 
 
-class Admin(Person):
-    ...
+class Admin(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    username: str
+    password: str
+    f_name: str
+    l_name: str
 
 
 class Token(BaseModel):
