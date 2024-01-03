@@ -8,38 +8,30 @@ from database import models, schemas
 class User:
     @staticmethod
     @db_session
+    def get_schema_of_user(user_db: models.User) -> None | schemas.Admin | schemas.Department | schemas.Actor:
+        if not user_db:
+            return None
+        elif isinstance(user_db, models.Admin):
+            return schemas.Admin.model_validate(user_db)
+        elif isinstance(user_db, models.Department):
+            return schemas.Department.model_validate(user_db)
+        elif isinstance(user_db, models.Actor):
+            return schemas.Actor.model_validate(user_db)
+        else:
+            raise ValueError("Invalid user_db object type.")
+
+    @staticmethod
+    @db_session
     def get(user_id: UUID) -> schemas.User:
         user_db = models.User.get(id=user_id)
-        if not user_db:
-            user = None
-        elif isinstance(user_db, models.Admin):
-            user = schemas.Admin.model_validate(user_db)
-        elif isinstance(user_db, models.Department):
-            user = schemas.Department.model_validate(user_db)
-        elif isinstance(user_db, models.Actor):
-            user = schemas.Actor.model_validate(user_db)
-        else:
-            raise IOError('Fehler in User.get().')
-
-        return user
+        return User.get_schema_of_user(user_db)
 
 
     @staticmethod
     @db_session
     def get_user_by_username(username: str) -> schemas.User | None:
         user_db = models.User.get(username=username)
-        if not user_db:
-            user = None
-        elif isinstance(user_db, models.Admin):
-            user = schemas.Admin.model_validate(user_db)
-        elif isinstance(user_db, models.Department):
-            user = schemas.Department.model_validate(user_db)
-        elif isinstance(user_db, models.Actor):
-            user = schemas.Actor.model_validate(user_db)
-        else:
-            raise IOError('Fehler in User.get().')
-
-        return user
+        return User.get_schema_of_user(user_db)
 
 
 class Actor:
