@@ -32,38 +32,50 @@ class Department(BaseModel):
     location: Location
 
 
-class Actor(BaseModel):
+class ActorCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: UUID
     username: str
     password: str
     f_name: str
     l_name: str
     artist_name: str
+
+
+class Actor(ActorCreate):
+
+    id: UUID
     team_of_actors: Optional['TeamOfActors']
 
 
-class TeamOfActors(BaseModel):
+class TeamOfActorsCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+    location: Location
+
+
+class TeamOfActors(TeamOfActorsCreate):
 
     id: UUID
     actors: list[Actor]
-    location: Location
 
     @field_validator('actors')
     def set_to_list(cls, values):  # sourcery skip: identity-comprehension
         return [v for v in values]
 
 
-class Admin(BaseModel):
+class AdminCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: UUID
     username: str
     password: str
     f_name: str
     l_name: str
+
+
+class Admin(AdminCreate):
+
+    id: UUID
 
 
 class Token(BaseModel):
