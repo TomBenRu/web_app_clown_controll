@@ -2,13 +2,14 @@ import uvicorn
 from fastapi import FastAPI
 
 from database import db
-from routers import websocket, department, auth
+from routers import websocket, department, auth, super_user
 
 app = FastAPI()
 
 app.include_router(websocket.router)
 app.include_router(auth.router)
 app.include_router(department.router)
+app.include_router(super_user.router)
 
 db.start_db()
 

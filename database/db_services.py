@@ -92,9 +92,23 @@ class Admin:
 class SuperUser:
     @staticmethod
     @db_session
-    def create_admin(admin: schemas.AdminCreate) -> schemas.Admin:
-        new_admin = models.Admin(f_name=admin.f_name,
-                                 l_name=admin.l_name,
-                                 username=admin.username,
-                                 password=admin.password)
+    def create_admin(admin: schemas.AdminCreate, admin_id: UUID | None = None) -> schemas.Admin:
+        if admin_id:
+            new_admin = models.Admin(f_name=admin.f_name,
+                                     l_name=admin.l_name,
+                                     username=admin.username,
+                                     password=admin.password,
+                                     id=admin_id)
+        else:
+            new_admin = models.Admin(f_name=admin.f_name,
+                                     l_name=admin.l_name,
+                                     username=admin.username,
+                                     password=admin.password)
+
         return schemas.Admin.model_validate(new_admin)
+
+    @staticmethod
+    @db_session
+    def delete_admin(admin_id: UUID):
+        admin_db = models.Admin.get_for_update(id=admin_id)
+        admin_db.delete()

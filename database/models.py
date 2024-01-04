@@ -9,7 +9,7 @@ db_clown_control = Database()
 class User(db_clown_control.Entity):
     id = PrimaryKey(UUID, auto=True)
     username = Required(str, 50, unique=True)
-    password = Required(str, 50)
+    password = Required(str)
     created_at = Required(datetime.date, default=lambda: datetime.date.today())
     last_modified = Required(datetime.datetime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     prep_delete = Optional(datetime.datetime)

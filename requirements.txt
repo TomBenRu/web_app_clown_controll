@@ -5,4 +5,5 @@ pony~=0.7.17
 pydantic~=2.5.3
 python-jose~=3.3.0
 passlib~=1.7.4
+bcrypt~=4.1.2
 python-multipart~=0.0.6

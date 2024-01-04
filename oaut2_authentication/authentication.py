@@ -1,12 +1,14 @@
 import datetime
+from functools import partial
 
-from fastapi import HTTPException, status, Request
+from fastapi import HTTPException, status, Request, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 from database import schemas, db_services
-from database.emums import AuthorizationTypes
+from database.enums import AuthorizationTypes
+from database.password_utils import verify
 from system_settings import settings
 
 
@@ -22,24 +24,13 @@ credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                       headers={'WWW-Authenticate': 'Bearer'})
 
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-
-
-def hash_psw(password: str):
-    return pwd_context.hash(password)
-
-
-def verify(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
 def create_access_token(data: dict) -> str:
     expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     data['exp'] = expire
     return jwt.encode(claims=data, key=SECRET_KEY, algorithm=ALGORITHM)
 
 
-def verify_access_token(token: str, role: AuthorizationTypes) -> schemas.TokenData:
+def verify_access_token(role: AuthorizationTypes, token: str = Depends(oauth2_scheme)) -> schemas.TokenData:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=ALGORITHM)
         if not (u_id := payload.get('user_id')):
@@ -52,12 +43,15 @@ def verify_access_token(token: str, role: AuthorizationTypes) -> schemas.TokenDa
     return token_data
 
 
-def get_current_user_cookie(request: Request, token_key: str, role: AuthorizationTypes):
-    token: str | None = request.cookies.get(token_key)
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='you have to log in first')
+verify_access_token__superuser = partial(verify_access_token, role=AuthorizationTypes.superuser)
+verify_access_token__admin = partial(verify_access_token, role=AuthorizationTypes.admin)
 
-    return verify_access_token(token, role)
+
+def get_current_user_cookie(request: Request, token_key: str, role: AuthorizationTypes):
+    if token := request.cookies.get(token_key):
+        return verify_access_token(token, role)
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='you have to log in first')
 
 
 def get_authorization_types(

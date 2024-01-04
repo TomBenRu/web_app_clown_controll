@@ -100,6 +100,7 @@ class SuperUserCreate(BaseModel):
 
 
 class SuperUser(SuperUserCreate):
+    id: UUID
     model_config = ConfigDict(from_attributes=True)
 
 
