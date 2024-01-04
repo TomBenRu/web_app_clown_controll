@@ -20,6 +20,11 @@ class Person(User):
     l_name = Required(str, 50)
 
 
+class SuperUser(Person):
+    def before_update(self):
+        self.last_modified = datetime.datetime.now(datetime.timezone.utc)
+
+
 class Location(db_clown_control.Entity):
     id = PrimaryKey(UUID, auto=True)
     name = Required(str, 50, unique=True)

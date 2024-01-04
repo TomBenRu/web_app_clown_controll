@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class AuthorizationTypes(Enum):
-    supervisor = 'supervisor'
+    superuser = 'superuser'
     admin = 'admin'
     department = 'department'
     actor = 'actor'

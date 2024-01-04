@@ -5,6 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
+class LocationCreate(BaseModel):
+    name: str
+
+
 class Location(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -19,6 +23,16 @@ class Location(BaseModel):
     @field_validator('departments', 'teams_of_actors')
     def set_to_list(cls, values):  # sourcery skip: identity-comprehension
         return [v for v in values]
+
+
+class DepartmentCreate(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    username: str
+    password: str
+    name: str
+    descriptive_name: str
+    location_id: UUID
 
 
 class Department(BaseModel):
@@ -76,6 +90,17 @@ class AdminCreate(BaseModel):
 class Admin(AdminCreate):
 
     id: UUID
+
+
+class SuperUserCreate(BaseModel):
+    username: str
+    password: str
+    f_name: str
+    l_name: str
+
+
+class SuperUser(SuperUserCreate):
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Token(BaseModel):

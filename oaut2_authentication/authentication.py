@@ -60,8 +60,11 @@ def get_current_user_cookie(request: Request, token_key: str, role: Authorizatio
     return verify_access_token(token, role)
 
 
-def get_authorization_types(user: schemas.User) -> list[AuthorizationTypes]:
+def get_authorization_types(
+        user: schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor) -> list[AuthorizationTypes]:
     auth_types = []
+    if isinstance(user, schemas.SuperUser):
+        auth_types.append(AuthorizationTypes.superuser)
     if isinstance(user, schemas.Admin):
         auth_types.append(AuthorizationTypes.admin)
     if isinstance(user, schemas.Department):
@@ -71,7 +74,8 @@ def get_authorization_types(user: schemas.User) -> list[AuthorizationTypes]:
     return auth_types
 
 
-def authenticate_user(username: str, passwort: str) -> schemas.User | str:
+def authenticate_user(
+        username: str, passwort: str) -> schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor:
     if not (user := db_services.User.get_user_by_username(username)):
         raise credentials_exception
     if not verify(passwort, user.password):
