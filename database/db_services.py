@@ -54,39 +54,84 @@ class Actor:
         actors_db = models.Actor.select()
         return [schemas.Actor.model_validate(a) for a in actors_db]
 
-    @staticmethod
-    @db_session
-    def create():
-        new_actor = models.Actor(f_name='Thomas', l_name='Ruff', artist_name='Karotte', username='tombenru',
-                                 password='Marionetten')
-        return schemas.Actor.model_validate(new_actor)
-
 
 class Admin:
     @staticmethod
     @db_session
-    def create_account(user: schemas.ActorCreate | schemas.DepartmentCreate) -> schemas.Actor | schemas.Department:
+    def create_account(
+            user: schemas.ActorCreate | schemas.DepartmentCreate, user_id: UUID | None = None) -> schemas.Actor | schemas.Department:
         if isinstance(user, schemas.ActorCreate):
-            new_actor = models.Actor(f_name=user.f_name,
-                                     l_name=user.l_name,
-                                     artist_name=user.artist_name,
-                                     username=user.username,
-                                     password=user.password)
+            if user_id:
+                new_actor = models.Actor(id=user_id,
+                                         f_name=user.f_name,
+                                         l_name=user.l_name,
+                                         artist_name=user.artist_name,
+                                         username=user.username,
+                                         password=user.password)
+            else:
+                new_actor = models.Actor(f_name=user.f_name,
+                                         l_name=user.l_name,
+                                         artist_name=user.artist_name,
+                                         username=user.username,
+                                         password=user.password)
+
             return schemas.Actor.model_validate(new_actor)
         if isinstance(user, schemas.DepartmentCreate):
             location_db = models.Location.get(id=user.location_id)
-            new_department = models.Department(name=user.name,
-                                               descriptive_name=user.descriptive_name,
-                                               location=location_db,
-                                               username=user.username,
-                                               password=user.password)
+            if user_id:
+                new_department = models.Department(id=user_id,
+                                                   name=user.name,
+                                                   descriptive_name=user.descriptive_name,
+                                                   location=location_db,
+                                                   username=user.username,
+                                                   password=user.password)
+            else:
+                new_department = models.Department(name=user.name,
+                                                   descriptive_name=user.descriptive_name,
+                                                   location=location_db,
+                                                   username=user.username,
+                                                   password=user.password)
+
             return schemas.Department.model_validate(new_department)
 
     @staticmethod
     @db_session
-    def create_location(location: schemas.LocationCreate) -> schemas.Location:
-        new_location = models.Location(name=location.name)
+    def delete_account(user: schemas.Department | schemas.Actor):
+        user_db = (models.Department.get_for_update(id=user.id) if isinstance(user, schemas.Department)
+                   else models.Actor.get_for_update(id=user.id))
+        user_db.delete()
+
+    @staticmethod
+    @db_session
+    def create_location(location: schemas.LocationCreate, location_id: UUID = None) -> schemas.Location:
+        new_location = (models.Location(name=location.name, id=location_id) if location_id
+                        else models.Location(name=location.name))
         return schemas.Location.model_validate(new_location)
+
+    @staticmethod
+    @db_session
+    def delete_location(location_id):
+        location_db = models.Location.get_for_update(id=location_id)
+        location_db.delete()
+
+    @staticmethod
+    @db_session
+    def create_department(department: schemas.DepartmentCreate, department_id: UUID = None) -> schemas.Department:
+        location_db = models.Location.get(id=department.location_id)
+        new_department = (models.Department(id=department_id,
+                                            name=department.name,
+                                            descriptive_name=department.descriptive_name,
+                                            location=location_db) if department_id
+                          else models.Department(name=department.name,
+                                                 descriptive_name=department.descriptive_name,
+                                                 location=location_db))
+        return schemas.Department.model_validate(new_department)
+
+    @staticmethod
+    @db_session
+    def delete_department(department_id: UUID):
+        department_db = models.Department.get_for_update(id=UUID)
+        department_db.delete()
 
 
 class SuperUser:

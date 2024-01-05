@@ -69,9 +69,9 @@ def get_authorization_types(
 
 
 def authenticate_user(
-        username: str, passwort: str) -> schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor:
+        username: str, password: str) -> schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor:
     if not (user := db_services.User.get_user_by_username(username)):
         raise credentials_exception
-    if not verify(passwort, user.password):
+    if not verify(password, user.password):
         raise credentials_exception
     return user
