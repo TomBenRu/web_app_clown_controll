@@ -11,12 +11,7 @@ router = APIRouter(prefix='/department', tags=['Clown-Call'])
 
 
 @router.get("/")
-async def get(request: Request):
-    # db_services.Actor.create()
-    actors = db_services.Actor.get_all()
-    print(f'{actors=}')
-    print(f'{db_services.User.get(actors[0].id)=}')
-
+async def chat(request: Request):
     return templates.TemplateResponse('chat_clown_call.html.j2',
                                       context={'request': request,
                                                'user_name': datetime.datetime.now().strftime('%d.%m.%y-%H:%M:%S')})
