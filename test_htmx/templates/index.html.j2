@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Demo HTMX</title>
+
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="mx-4">
+        <p class="text-2xl font-bold mb-4">Movie List</p>
+        <table class="min-w-[50%] mb-4">
+            <thead class="border-b text-lg">
+                <tr>
+                    <th class="border">Name</th>
+                    <th class="border">Director</th>
+                </tr>
+            </thead>
+            <tbody class="text-center text-sm" id="table-body">
+                {# {% include "table.html.j2" %} #}
+            </tbody>
+        </table>
+        <button class="px-3 py-1 bg-blue-600 text-white ml-4" hx-get="/index" hx-target="#table-body" hx-swap="afterend">Load</button>
+    </div>
+    
+</body>
+</html>
