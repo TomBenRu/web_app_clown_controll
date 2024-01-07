@@ -9,11 +9,13 @@
 
 </head>
 <body>
-    <div hx-ext="ws" ws-connect="/ws/notifications/">
+    
+    <div hx-ext="ws" ws-connect="/ws/notifications/?token={{token}}">
         <h2>Neue Nachrichten:</h2>
         <div id="notifications"></div>
         <form id="form" ws-send>
-            <input name="chat-message">
+            <div><input  class="hidden" name="user-id" value="1234"><input  class="bg-green-300" name="chat-message"></div>
+            <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
         </form>
     </div>
     
