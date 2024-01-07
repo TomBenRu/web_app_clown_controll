@@ -1,0 +1,7 @@
+<form id="form" ws-send>
+    <div><input  class="bg-green-300" name="chat-message"></div>
+    <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
+</form>
+<div id="notifications" hx-swap-oob="afterbegin">
+    <p>{{ curr_time }}: Neue Nachricht von ws an {{ sender }}: {{ message }}.</p>
+</div>

@@ -9,6 +9,29 @@ app = FastAPI()
 templates = Jinja2Templates('templates')
 
 
+class MessageHandler:
+    @staticmethod
+    async def send_to_remote(websocket: WebSocket, message: str):
+        message_text = (f"Message from server at {datetime.datetime.now().strftime('%d.%m.%y %H:%M:%S')} to "
+                        f"{websocket.cookies}: {message}")
+        await websocket.send_text(message_text)
+
+    @staticmethod
+    async def send_to_web_client(websocket: WebSocket, message: str):
+        message_text = templates.get_template('server_ws_response.html.j2').render(
+            curr_time=datetime.datetime.now().strftime('%d.%m.%y %H:%M:%S'), sender=websocket.cookies,
+            message=message)
+        await websocket.send_text(message_text)
+
+    @staticmethod
+    async def send_message(websocket: WebSocket, message: str):
+        if websocket.cookies.get('ws-cookie') == 'clown-team-token':
+            await MessageHandler.send_to_remote(websocket, message)
+        else:
+            await MessageHandler.send_to_web_client(websocket, message)
+
+
+
 @app.get('/index/', response_class=HTMLResponse)
 def index(request: Request, hx_request: str | None = Header(default=None)):
     films = [
@@ -19,7 +42,7 @@ def index(request: Request, hx_request: str | None = Header(default=None)):
     if hx_request:
         return templates.TemplateResponse('table.html.j2', context={'request': request, 'films': films})
     response = templates.TemplateResponse('index2.html.j2', context={'request': request, 'films': films})
-    response.set_cookie(key='ws-cookie', value='my-ws-token')
+    response.set_cookie(key='ws-cookie', value='department-token')
     return response
 
 
@@ -33,13 +56,6 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             print(f'{data=}')
-            await websocket.send_text(f"""
-            <form id="form" ws-send>
-                <div><input  class="bg-green-300" name="chat-message"></div>
-                <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
-            </form>
-            <div id="notifications" hx-swap-oob="afterbegin">
-                <p>{datetime.datetime.now(): %d.%m.%y %H:%M:%S}: Neue Nachricht von ws to {websocket.cookies}.</p>
-            </div>""")
+            await MessageHandler.send_message(websocket, 'Wie geht es dir?')
     except WebSocketDisconnect:
         print('Client is disconnected')
