@@ -10,13 +10,8 @@
 </head>
 <body>
     <div hx-ext="ws" ws-connect="/ws/notifications/">
-        <div id="notifications" hx-swap-oob="beforeend">
-            New message received
-        </div>
-        <!-- will be swapped using an extension -->
-        <div id="chat_room" hx-swap-oob="morphdom">
-            ....
-        </div>
+        <h2>Neue Nachrichten:</h2>
+        <div id="notifications"></div>
         <form id="form" ws-send>
             <input name="chat-message">
         </form>

@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import FastAPI, Request, Header, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -26,6 +28,12 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             print(f'{data["chat-message"]=}')
-            await websocket.send_text("""<div id="notifications"><p>Neue Nachricht von ws</p></div>""")
+            await websocket.send_text(f"""
+            <form id="form" ws-send>
+                <input name="chat-message">
+            </form>
+            <div id="notifications" hx-swap-oob="afterbegin">
+                <p>{datetime.datetime.now(): %d.%m.%y %H:%M:%S}: Neue Nachricht von ws.</p>
+            </div>""")
     except WebSocketDisconnect:
         print('Client is disconnected')
