@@ -10,20 +10,20 @@
 </head>
 <body>
     
-    <div hx-ext="ws" ws-connect="/ws/notifications/?token={{token}}">
+    <div hx-ext="ws" ws-connect="/ws/notifications/">
         <h2>Neue Nachrichten:</h2>
         <div id="notifications"></div>
         <form id="form" ws-send>
-            <div><input  class="hidden" name="user-id" value="1234"><input  class="bg-green-300" name="chat-message"></div>
+            <div><input  class="bg-green-300" name="chat-message"></div>
             <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
         </form>
     </div>
     
     
     <script>
-    document.body.addEventListener('htmx:beforeRequest', function(event) {
-        console.log('HTMX is configuring a request!', event.detail);
-    });
+        document.body.addEventListener('htmx:beforeRequest', function(event) {
+            console.log('HTMX is configuring a request!', event.detail);
+        });
     </script>
 </body>
 </html>
