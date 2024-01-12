@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ page_title }}</title>
-    <meta charset="UTF-8">
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+{% include "head_htmx.html.j2" %}
 <body>
     <div hx-ext="ws" ws-connect="/ws/">
         <h2>Neue Nachrichten:</h2>
