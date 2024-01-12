@@ -16,20 +16,40 @@ class ConnectionManager:
         await websocket.accept()
         if department:
             self.active_department_connections.append(websocket)
+            print(f'{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections.append(websocket)
+            print(f'{self.active_clowns_teams_connections=}')
 
     def disconnect(self, websocket: WebSocket, department: bool):
-        self.active_department_connections.remove(websocket)
+        if department:
+            self.active_department_connections.remove(websocket)
+        else:
+            print(f'{self.active_clowns_teams_connections=}')
+            print(f'{websocket=}')
+            self.active_clowns_teams_connections.remove(websocket)
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast(self, message: str, original_websocket: WebSocket, departments: bool, clown_teams: bool):
+    async def send_personal_clowns_team_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast_departments(self, message: str, original_websocket: WebSocket):
         for connection in self.active_department_connections:
-            if connection == original_websocket:
-                continue
             await connection.send_text(message)
+
+    async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket):
+        for connection in self.active_clowns_teams_connections:
+            await connection.send_text(message)
+
+    async def send_alert_to_departments(self, websocket: WebSocket, message: str):
+        for ws in self.active_department_connections:
+            await ws.send_text(message)
+
+    async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str):
+        for ws in self.active_clowns_teams_connections:
+            await ws.send_text(message)
 
 
 manager = ConnectionManager()
@@ -37,22 +57,36 @@ manager = ConnectionManager()
 
 class MessageHandler:
     @staticmethod
-    async def handle_personal_clown_request_message(data: str, websocket: WebSocket):
+    async def handle_message(data: str, websocket: WebSocket, token: str):
         now = datetime.datetime.now().strftime('%H:%M:%S')
-        message = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
-        await manager.send_personal_department_message(message, websocket)
+        if token == 'department-token':
+            message_broadcast = f'{token} sending: {data}'
+            message_personal = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
+            await manager.broadcast_clowns_teams(message_broadcast, websocket)
+            await manager.send_personal_department_message(message_personal, websocket)
+        else:
+            message_broadcast = templates.get_template('responses/clown_response.html.j2').render(time=now, message=data)
+            message_personal = f'You sent: {data}'
+            await manager.broadcast_departments(message_broadcast, websocket)
+            await manager.send_personal_clowns_team_message(message_personal, websocket)
 
     @staticmethod
-    async def handle_broadcast_clown_request_message(data: str, token: str, websocket: WebSocket):
-        message = f'Department {token} says: {data}'
-        await manager.broadcast(message, websocket, departments=False, clown_teams=True)
+    async def user_joined_message(token: str, websocket: WebSocket):
+        if token == 'department-token':
+            await manager.connect(websocket, True)
+            message = f'{token} has just joined.'
+            await manager.send_alert_to_clown_teams(websocket, message)
+        else:
+            await manager.connect(websocket, False)
+            message = templates.get_template('responses/clowns_team_joined.html.j2').render(team=token)
+            await manager.send_alert_to_departments(websocket, message)
 
     @staticmethod
-    async def clown_team_joined_message_to_department(token: str, websocket: WebSocket):
-        message = templates.get_template('responses/clowns_team_joined').render(team=token)
-        await manager.broadcast(message, websocket)
+    async def user_leave_message(token: str, websocket):
+        if token == 'department-token':
+            message = f'{token} has just left.'
+            await manager.send_alert_to_clown_teams(websocket, message)
+        else:
+            message = templates.get_template('responses/clowns_team_left.html.j2').render(team=token)
+            await manager.send_alert_to_departments(websocket, message)
 
-    @staticmethod
-    async def clown_team_leave_message_to_department(token: str, websocket: WebSocket):
-        message = templates.get_template('responses/clowns_team_leave').render(team=token)
-        await manager.broadcast(message, websocket)
