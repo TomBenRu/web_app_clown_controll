@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Clown Call</title>
-</head>
+    <title>{{ page_title }}</title>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 <body>
-    <h1>WebSocket Chat</h1>
-        <h2>Your ID: <span id="ws-id"></span>, Your name: {{ user_name }}</h2>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
+    <div hx-ext="ws" ws-connect="/ws/">
+        <h2>Neue Nachrichten:</h2>
+        <table class="min-w-[50%] mb-4">
+            <thead class="border-b text-lg">
+                <tr>
+                    <th class="border">gesendet</th>
+                    <th class="border">empfangen</th>
+                </tr>
+            </thead>
+            <tbody class="text-center text-sm" id="messages-responses">
+            </tbody>
+        </table>
+        <form id="form" ws-send>
+            <div><input  class="bg-green-300" name="chat-message"></div>
+            <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
         </form>
-        <ul id='messages'>
-        </ul>
-        {% block javascript %}
-        <script>
-            {% include "scripts/ws_connect.js" %}
-        </script>
-        {% endblock %}
+    </div>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from fastapi import FastAPI, Request, Header, WebSocket, WebSocketDisconnect, Query, Cookie
 from fastapi.responses import HTMLResponse
@@ -31,7 +32,6 @@ class MessageHandler:
             await MessageHandler.send_to_web_client(websocket, message)
 
 
-
 @app.get('/index/', response_class=HTMLResponse)
 def index(request: Request, hx_request: str | None = Header(default=None)):
     films = [
@@ -40,7 +40,7 @@ def index(request: Request, hx_request: str | None = Header(default=None)):
         {'name': 'Mulholland Drive', 'director': 'David Lynch'}
     ]
     if hx_request:
-        return templates.TemplateResponse('table.html.j2', context={'request': request, 'films': films})
+        return
     response = templates.TemplateResponse('index2.html.j2', context={'request': request, 'films': films})
     response.set_cookie(key='ws-cookie', value='department-token')
     return response
@@ -50,8 +50,10 @@ def index(request: Request, hx_request: str | None = Header(default=None)):
 async def websocket_endpoint(websocket: WebSocket):
     print('------------------------in---------------------------')
     await websocket.accept()
+    # token = websocket.cookies['ws-cookie']
+    token = websocket.cookies['ws-cookie']
     print(f'{websocket.headers=}')
-    print(f'{websocket.cookies=}')
+    # print(f'{websocket.cookies=}')
     try:
         while True:
             data = await websocket.receive_json()

@@ -5,6 +5,7 @@
     <title>Demo 2 HTMX</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
@@ -18,12 +19,5 @@
             <div><button class="bg-blue-300 shadow-lg" ws-send>send</button></div>
         </form>
     </div>
-    
-    
-    <script>
-        document.body.addEventListener('htmx:beforeRequest', function(event) {
-            console.log('HTMX is configuring a request!', event.detail);
-        });
-    </script>
 </body>
 </html>
