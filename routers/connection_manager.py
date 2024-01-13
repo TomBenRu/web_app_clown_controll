@@ -66,7 +66,9 @@ class MessageHandler:
             await manager.send_personal_department_message(message_personal, websocket)
         else:
             message_broadcast = templates.get_template('responses/clown_response.html.j2').render(time=now, message=data)
+            alert_message_rsv = templates.get_template('responses/alert_message_received.html').render(team=token)
             message_personal = f'You sent: {data}'
+            await manager.broadcast_departments(alert_message_rsv, websocket)
             await manager.broadcast_departments(message_broadcast, websocket)
             await manager.send_personal_clowns_team_message(message_personal, websocket)
 
@@ -78,7 +80,7 @@ class MessageHandler:
             await manager.send_alert_to_clown_teams(websocket, message)
         else:
             await manager.connect(websocket, False)
-            message = templates.get_template('responses/clowns_team_joined.html.j2').render(team=token)
+            message = templates.get_template('responses/alert_clowns_team_joined.html.j2').render(team=token)
             await manager.send_alert_to_departments(websocket, message)
 
     @staticmethod
@@ -87,6 +89,6 @@ class MessageHandler:
             message = f'{token} has just left.'
             await manager.send_alert_to_clown_teams(websocket, message)
         else:
-            message = templates.get_template('responses/clowns_team_left.html.j2').render(team=token)
+            message = templates.get_template('responses/alert_clowns_team_left.html.j2').render(team=token)
             await manager.send_alert_to_departments(websocket, message)
 
