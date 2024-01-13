@@ -58,7 +58,7 @@ manager = ConnectionManager()
 class MessageHandler:
     @staticmethod
     async def handle_message(data: str, websocket: WebSocket, token: str):
-        now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=0), 'Europe/Berlin')).strftime('%H:%M:%S')
+        now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin')).strftime('%H:%M:%S')
         if token == 'department-token':
             message_broadcast = f'{token} sending: {data}'
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
