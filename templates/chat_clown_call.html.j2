@@ -5,16 +5,18 @@
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
     <div hx-ext="ws" ws-connect="/ws/">
         <h2>Neue Nachrichten:</h2>
-        <table class="min-w-[50%] mb-4">
-            <thead class="border-b text-lg">
-                <tr>
-                    <th class="border">gesendet</th>
-                    <th class="border">empfangen</th>
-                </tr>
-            </thead>
+    <table class="min-w-[50%] mb-4 bg-gradient-to-r from-indigo-500 to-pink-500">
+        <thead class="border-b text-lg">
+            <tr>
+                <th class="border">gesendet</th>  
+                <th class="border">empfangen</th>
+            </tr>
+        </thead>
+
             <tbody class="text-center text-sm" id="messages-responses">
             </tbody>
-        </table>
+    </table>
+
         <form class="mt-4" id="form" ws-send>
             <div><input  class="bg-green-300 py-2 px-4 rounded-l-lg flex-grow" name="chat-message">
             <button class="bg-blue-300 py-2 px-4 rounded-r-lg ml-2" ws-send>send</button></div>
