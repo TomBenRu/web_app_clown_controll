@@ -61,9 +61,11 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin')).strftime('%H:%M:%S')
         if token == 'department-token':
             message_broadcast = f'{token} sending: {data}'
+            empty_input = templates.get_template('responses/empty_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
             await manager.broadcast_clowns_teams(message_broadcast, websocket)
             await manager.send_personal_department_message(message_personal, websocket)
+            await manager.send_personal_department_message(empty_input, websocket)
         else:
             message_broadcast = templates.get_template('responses/clown_response.html.j2').render(time=now, message=data)
             alert_message_rsv = templates.get_template('responses/alert_message_received.html').render(team=token)
