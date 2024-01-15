@@ -14,8 +14,6 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
 
     token = websocket.cookies['clown-call-auth']
 
-
-
     print(f'{token=}')
     try:
         token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
