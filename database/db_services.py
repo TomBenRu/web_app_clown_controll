@@ -1,3 +1,4 @@
+import sys
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -120,9 +121,13 @@ class Admin:
         location_db = models.Location.get(id=department.location_id)
         new_department = (models.Department(id=department_id,
                                             name=department.name,
+                                            username=department.username,
+                                            password=department.password,
                                             descriptive_name=department.descriptive_name,
                                             location=location_db) if department_id
                           else models.Department(name=department.name,
+                                                 username=department.username,
+                                                 password=department.password,
                                                  descriptive_name=department.descriptive_name,
                                                  location=location_db))
         return schemas.Department.model_validate(new_department)

@@ -17,6 +17,9 @@ class Location(BaseModel):
     created_at: datetime.date
     last_modified: datetime.datetime
     prep_delete: Optional[datetime.datetime]
+
+
+class LocationShow(Location):
     departments: list['Department']
     teams_of_actors: list['TeamOfActors']
 

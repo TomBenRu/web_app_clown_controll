@@ -30,12 +30,12 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(claims=data, key=SECRET_KEY, algorithm=ALGORITHM)
 
 
-def verify_access_token(role: AuthorizationTypes, token: str = Depends(oauth2_scheme)) -> schemas.TokenData:
+def verify_access_token(role: AuthorizationTypes | None, token: str = Depends(oauth2_scheme)) -> schemas.TokenData:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=ALGORITHM)
         if not (u_id := payload.get('user_id')):
             raise credentials_exception
-        if role.value not in payload['roles']:
+        if role and role.value not in payload['roles']:
             raise credentials_exception
         token_data = schemas.TokenData(id=u_id, authorizations=payload['roles'])
     except JWTError as e:
@@ -47,9 +47,9 @@ verify_access_token__superuser = partial(verify_access_token, role=Authorization
 verify_access_token__admin = partial(verify_access_token, role=AuthorizationTypes.admin)
 
 
-def get_current_user_cookie(request: Request, token_key: str, role: AuthorizationTypes):
+def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth', role: AuthorizationTypes = None) -> schemas.TokenData:
     if token := request.cookies.get(token_key):
-        return verify_access_token(token, role)
+        return verify_access_token(role, token)
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='you have to log in first')
 

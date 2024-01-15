@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi.templating import Jinja2Templates
 
 from commands.services import request_handler
 from database import db_services, schemas
