@@ -11,7 +11,11 @@ router = APIRouter(tags=['Web-Socket'])
 
 @router.websocket("/ws/")
 async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit AuthorizationType anmelden
-    token = websocket.cookies['clown-call-auth'].split(' ')[0]
+    try:
+        token = websocket.cookies['clown-call-auth']
+    except Exception as e:
+        print(f'Token from cookie not found: {e}')
+        token = websocket.headers['Token']
     print(f'{token=}')
     try:
         token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
