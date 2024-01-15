@@ -27,7 +27,6 @@ class ConnectionManager:
             self.active_department_connections.remove(websocket)
         else:
             print(f'{self.active_clowns_teams_connections=}')
-            print(f'{websocket=}')
             self.active_clowns_teams_connections.remove(websocket)
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
