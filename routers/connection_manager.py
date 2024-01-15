@@ -94,7 +94,9 @@ class MessageHandler:
         if 'department' in token_data.authorizations:
             message = f'{user.name} has just left.'
             await manager.send_alert_to_clown_teams(websocket, message)
+            manager.disconnect(websocket, True)
         else:
             message = templates.get_template('responses/alert_clowns_team_left.html.j2').render(team=f'Clowns-Team {user.artist_name}')
             await manager.send_alert_to_departments(websocket, message)
+            manager.disconnect(websocket, False)
 
