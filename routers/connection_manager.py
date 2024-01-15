@@ -17,16 +17,18 @@ class ConnectionManager:
         await websocket.accept()
         if department:
             self.active_department_connections.append(websocket)
-            print(f'{self.active_department_connections=}')
+            print(f'-------------------------------------------------------------{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections.append(websocket)
-            print(f'{self.active_clowns_teams_connections=}')
+            print(f'-----------------------------------------------------------{self.active_clowns_teams_connections=}')
 
     def disconnect(self, websocket: WebSocket, department: bool):
         if department:
             self.active_department_connections.remove(websocket)
+            print(f'-------------------------------------------------------------{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections.remove(websocket)
+            print(f'-----------------------------------------------------------{self.active_clowns_teams_connections=}')
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -78,7 +80,6 @@ class MessageHandler:
     @staticmethod
     async def user_joined_message(token_data: schemas.TokenData, websocket: WebSocket):
         user = db_services.User.get(token_data.id)
-        print(f'{token_data=}')
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True)
             message = f'{user.name} has just joined.'

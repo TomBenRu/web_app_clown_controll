@@ -32,5 +32,4 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             message = json.loads(data)['chat-message']
             await MessageHandler.handle_message(message, websocket, token_data)
     except WebSocketDisconnect as e:
-        print(f'Exception: {e}')
         await MessageHandler.user_leave_message(token_data, websocket)
