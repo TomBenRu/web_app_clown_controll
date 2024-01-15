@@ -12,6 +12,7 @@ router = APIRouter(tags=['Web-Socket'])
 @router.websocket("/ws/")
 async def websocket_endpoint(websocket: WebSocket):
     token = websocket.cookies['clown-call-auth']
+    print(f'{token=}')
     token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
     print(f'{token_data=}')
 
@@ -22,7 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f'{token=}')
             print(f'{json.loads(data)=}')
             message = json.loads(data)['chat-message']
-            await MessageHandler.handle_message(message, websocket, token)
+            await MessageHandler.handle_message(message, websocket, token_data)
     except WebSocketDisconnect as e:
         print(f'Exception: {e}')
         manager.disconnect(websocket, token == 'department-token')

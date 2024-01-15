@@ -3,6 +3,7 @@ import datetime
 from fastapi import WebSocket
 from fastapi.templating import Jinja2Templates
 
+from database import schemas, db_services
 
 templates = Jinja2Templates('templates')
 
@@ -57,10 +58,11 @@ manager = ConnectionManager()
 
 class MessageHandler:
     @staticmethod
-    async def handle_message(data: str, websocket: WebSocket, token: str):
+    async def handle_message(data: str, websocket: WebSocket, token_data: schemas.TokenData):
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin')).strftime('%H:%M:%S')
-        if token == 'department-token':
-            message_broadcast = f'{token} sending: {data}'
+        user = db_services.User.get(token_data.id)
+        if 'department' in token_data.authorizations:
+            message_broadcast = f'{user.name} sending: {data}'
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
             await manager.broadcast_clowns_teams(message_broadcast, websocket)
@@ -68,7 +70,7 @@ class MessageHandler:
             await manager.send_personal_department_message(empty_input, websocket)
         else:
             message_broadcast = templates.get_template('responses/clown_response.html.j2').render(time=now, message=data)
-            alert_message_rsv = templates.get_template('responses/alert_message_received.html').render(team=token)
+            alert_message_rsv = templates.get_template('responses/alert_message_received.html').render(team='Clowns-Team')
             message_personal = f'You sent: {data}'
             await manager.broadcast_departments(alert_message_rsv, websocket)
             await manager.broadcast_departments(message_broadcast, websocket)
