@@ -1,10 +1,11 @@
 import datetime
+from functools import partial
 
-from fastapi import APIRouter, Request, Header, status
+from fastapi import APIRouter, Request, Header, status, Depends
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
 
-from database import db_services
+from database import db_services, schemas
 from database.enums import AuthorizationTypes
 from oaut2_authentication import authentication
 
@@ -22,7 +23,5 @@ async def department_chat(request: Request, hx_request: str | None = Header(defa
         return RedirectResponse(redirect_url, status_code=status.HTTP_303_SEE_OTHER)
     if hx_request:
         return
-    response = templates.TemplateResponse('chat_clown_call.html.j2',
-                                          context={'request': request, 'page_title': 'Clown-Call'})
-    response.set_cookie(key='ws-cookie', value='department-token')
-    return response
+    return templates.TemplateResponse('chat_clown_call.html.j2',
+                                      context={'request': request, 'page_title': 'Clown-Call'})
