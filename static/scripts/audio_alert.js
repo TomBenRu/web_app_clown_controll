@@ -1,5 +1,5 @@
 function playAudio() {
-    let audio = document.querySelector('audio');
+    let audio = document.getElementById('alert_audio_01');
     audio.play();
   }
   
