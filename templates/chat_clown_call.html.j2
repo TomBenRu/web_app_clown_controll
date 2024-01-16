@@ -3,6 +3,7 @@
 {% include "head_htmx.html.j2" %}
 <body>
     <audio><source src="{{ url_for('static', path='/audio/alert_01.wav') }}"></audio>
+    <script src="{{ url_for('static', path='/scripts/audio_alert.js') }}"></script>
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
     <div hx-ext="ws" ws-connect="/ws/">
         <h2>Neue Nachrichten:</h2>
@@ -26,23 +27,5 @@
             </div>
         </form>
     </div>
-    <script>
-
-function playAudio() {
-  let audio = document.querySelector('audio');
-  audio.play();
-}
-
-document.addEventListener('htmx:load', (event) => {
-
-  // Prüfen ob geladenes Element die ID "alerts" hat
-  if (event.target.id === "alert") {
-    playAudio();
-  }
-
-});
-
-
-</script>
 </body>
 </html>
