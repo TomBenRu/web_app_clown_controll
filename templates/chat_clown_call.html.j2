@@ -2,21 +2,22 @@
 <html lang="en">
 {% include "head_htmx.html.j2" %}
 <body>
+    <audio><source src="{{ url_for('static', path='/audio/alert_01.wav') }}"></audio>
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
     <div hx-ext="ws" ws-connect="/ws/">
         <h2>Neue Nachrichten:</h2>
-    <table class="min-w-[50%] mb-4 bg-gradient-to-r from-indigo-500 to-pink-500">
-        <thead class="border-b text-lg">
-            <tr>
-                <th class="border">Zeit</th>
-                <th class="border">gesendet</th>  
-                <th class="border">empfangen</th>
-            </tr>
-        </thead>
+        <table class="min-w-[50%] mb-4 bg-gradient-to-r from-indigo-500 to-pink-500">
+            <thead class="border-b text-lg">
+                <tr>
+                    <th class="border">Zeit</th>
+                    <th class="border">gesendet</th>  
+                    <th class="border">empfangen</th>
+                </tr>
+            </thead>
 
-            <tbody class="text-center text-sm" id="messages-responses">
-            </tbody>
-    </table>
+                <tbody class="text-center text-sm" id="messages-responses">
+                </tbody>
+        </table>
 
         <form class="mt-4" id="form" ws-send>
             <div>
@@ -25,5 +26,23 @@
             </div>
         </form>
     </div>
+    <script>
+
+function playAudio() {
+  let audio = document.querySelector('audio');
+  audio.play();
+}
+
+document.addEventListener('htmx:load', (event) => {
+
+  // Prüfen ob geladenes Element die ID "alerts" hat
+  if (event.target.id === "alert") {
+    playAudio();
+  }
+
+});
+
+
+</script>
 </body>
 </html>

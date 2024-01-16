@@ -1,10 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from database import db
 from routers import websocket, department, auth, super_user, admin, index
 
 app = FastAPI()
+static_files = StaticFiles(directory="static")
+app.mount("/static", static_files, name="static")
 
 app.include_router(websocket.router)
 app.include_router(auth.router)
