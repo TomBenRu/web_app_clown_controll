@@ -9,7 +9,7 @@ from database import models, schemas
 
 
 @db_session
-def get_schema_of_user(user_db: models.User) -> None | schemas.SuperUser | schemas.PersonShow | schemas.Department | schemas.Actor:
+def get_schema_of_user(user_db: models.User) -> None | schemas.SuperUser | schemas.PersonShow | schemas.Department | schemas.ActorShow:
     if not user_db:
         return None
     elif isinstance(user_db, models.SuperUser):
@@ -17,7 +17,7 @@ def get_schema_of_user(user_db: models.User) -> None | schemas.SuperUser | schem
     elif isinstance(user_db, models.Department):
         return schemas.Department.model_validate(user_db)
     elif isinstance(user_db, models.Actor):
-        return schemas.Actor.model_validate(user_db)
+        return schemas.ActorShow.model_validate(user_db)
     elif isinstance(user_db, models.Person):
         return schemas.PersonShow.model_validate(user_db)
     else:

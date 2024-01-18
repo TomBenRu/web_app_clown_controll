@@ -109,6 +109,7 @@ class ActorCreate(PersonCreate):
 class Actor(Person):
     model_config = ConfigDict(from_attributes=True)
 
+    artist_name: str
     team_of_actors: Optional['TeamOfActors']
     institution_actors: InstitutionActors
 
