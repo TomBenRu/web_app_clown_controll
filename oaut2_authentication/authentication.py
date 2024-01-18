@@ -31,6 +31,8 @@ def create_access_token(data: dict) -> str:
 
 
 def verify_access_token(role: AuthorizationTypes | None, token: str = Depends(oauth2_scheme)) -> schemas.TokenData:
+    print(f'Verifying access token with role {role}')
+    print(f'Token: {token}')
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=ALGORITHM)
         if not (u_id := payload.get('user_id')):
@@ -47,6 +49,7 @@ verify_access_token__superuser = partial(verify_access_token, role=Authorization
 verify_access_token__admin_of_location = partial(verify_access_token, role=AuthorizationTypes.admin_of_location)
 verify_access_token__admin_of_institution_actors = partial(verify_access_token,
                                                            role=AuthorizationTypes.admin_of_institution_actors)
+verify_access_token__actor = partial(verify_access_token, role=AuthorizationTypes.actor)
 
 
 def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth', role: AuthorizationTypes = None) -> schemas.TokenData:

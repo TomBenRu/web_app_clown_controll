@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from database import db
-from routers import websocket, department, auth, super_user, admin, index
+from routers import websocket, department, auth, super_user, admin, index, actors
 
 app = FastAPI()
 static_files = StaticFiles(directory="static")
@@ -15,6 +15,7 @@ app.include_router(department.router)
 app.include_router(super_user.router)
 app.include_router(admin.router)
 app.include_router(index.router)
+app.include_router(actors.router)
 
 db.start_db()
 

@@ -52,9 +52,9 @@ class User:
 class Actor:
     @staticmethod
     @db_session
-    def get_all():
+    def get_all_actors() -> list[schemas.ActorShow]:
         actors_db = models.Actor.select()
-        return [schemas.Actor.model_validate(a) for a in actors_db]
+        return [schemas.ActorShow.model_validate(a) for a in actors_db]
 
 
 class Admin:
