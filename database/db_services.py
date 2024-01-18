@@ -56,6 +56,12 @@ class Actor:
         actors_db = models.Actor.select()
         return [schemas.ActorShow.model_validate(a) for a in actors_db]
 
+    @staticmethod
+    @db_session
+    def get_all_locations() -> list[schemas.LocationShow]:
+        locations_db = models.Location.select()
+        return [schemas.LocationShow.model_validate(l) for l in locations_db]
+
 
 class Admin:
     @staticmethod
