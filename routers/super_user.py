@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 
 from commands.services import request_handler
 from database import db_services, schemas, password_utils, enums
-from oaut2_authentication.authentication import verify_access_token__admin, verify_access_token__superuser
+from oaut2_authentication.authentication import verify_access_token__superuser
 
 router = APIRouter(prefix='/superuser', tags=['Superuser'])
 
@@ -20,6 +20,11 @@ def create(user: schemas.SuperUserCreate):
         return {'Kein Erfolg': f'Fehler: {e}'}
 
 
-@router.post('/admin')
-def create_admin(user: schemas.AdminCreate, token_data: str = Depends(verify_access_token__superuser)):
-    return request_handler.create_admin(user)
+@router.post('/institution-actors', dependencies=[Depends(verify_access_token__superuser)])
+def create_institution_actors(user: schemas.PersonCreate, institution_actors: schemas.InstitutionActorsCreate):
+    return request_handler.create_institution_actors(user, institution_actors)
+
+
+@router.post('/location', dependencies=[Depends(verify_access_token__superuser)])
+def create_location(user: schemas.PersonCreate, location: schemas.LocationCreate):
+    return request_handler.create_location(user, location)

@@ -44,7 +44,9 @@ def verify_access_token(role: AuthorizationTypes | None, token: str = Depends(oa
 
 
 verify_access_token__superuser = partial(verify_access_token, role=AuthorizationTypes.superuser)
-verify_access_token__admin = partial(verify_access_token, role=AuthorizationTypes.admin)
+verify_access_token__admin_of_location = partial(verify_access_token, role=AuthorizationTypes.admin_of_location)
+verify_access_token__admin_of_institution_actors = partial(verify_access_token,
+                                                           role=AuthorizationTypes.admin_of_institution_actors)
 
 
 def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth', role: AuthorizationTypes = None) -> schemas.TokenData:
@@ -55,12 +57,15 @@ def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth'
 
 
 def get_authorization_types(
-        user: schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor) -> list[AuthorizationTypes]:
+        user: schemas.SuperUser | schemas.PersonShow | schemas.Department | schemas.ActorShow) -> list[AuthorizationTypes]:
     auth_types = []
     if isinstance(user, schemas.SuperUser):
         auth_types.append(AuthorizationTypes.superuser)
-    if isinstance(user, schemas.Admin):
-        auth_types.append(AuthorizationTypes.admin)
+    if isinstance(user, schemas.Person):
+        if user.location_of_admin:
+            auth_types.append(AuthorizationTypes.admin_of_location)
+        if user.institution_actors_of_admin:
+            auth_types.append(AuthorizationTypes.admin_of_institution_actors)
     if isinstance(user, schemas.Department):
         auth_types.append(AuthorizationTypes.department)
     if isinstance(user, schemas.Actor):
@@ -69,7 +74,7 @@ def get_authorization_types(
 
 
 def authenticate_user(
-        username: str, password: str) -> schemas.SuperUser | schemas.Admin | schemas.Department | schemas.Actor:
+        username: str, password: str) -> schemas.SuperUser | schemas.Person | schemas.Department | schemas.Actor:
     if not (user := db_services.User.get_user_by_username(username)):
         raise credentials_exception
     if not verify(password, user.password):

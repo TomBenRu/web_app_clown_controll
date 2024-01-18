@@ -30,19 +30,3 @@ class CreateDepartment(Command):
 
     def redo(self):
         db_services.Admin.create_department(self.department, self.created_department.id)
-
-
-class CreateLocation(Command):
-    def __init__(self, location: schemas.LocationCreate):
-        self.location = location
-        self.created_location: schemas.Location | None = None
-
-    def execute(self):
-        self.created_location = db_services.Admin.create_location(self.location)
-
-    def undo(self):
-        db_services.Admin.delete_location(self.created_location.id)
-
-    def redo(self):
-        db_services.Admin.create_location(self.location, self.created_location.id)
-
