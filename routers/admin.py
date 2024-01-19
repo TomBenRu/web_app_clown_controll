@@ -20,8 +20,8 @@ def create_department(department: schemas.DepartmentCreate):
     return request_handler.create_department(department)
 
 
-@router.post('/location', dependencies=[Depends(verify_access_token__admin_of_location)])
-def create_location(location: schemas.LocationCreate):
-    return request_handler.create_location(location)
+@router.post('/location', dependencies=[Depends(verify_access_token__admin_of_institution_actors)])
+def create_location(user: schemas.PersonCreate, location: schemas.LocationCreate):
+    return request_handler.create_location(user, location)
 
 

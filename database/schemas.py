@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 class LocationCreate(BaseModel):
     name: str
     admin_id: Optional[UUID] = None
+    institution_actors_id: Optional[UUID] = None
 
 
 class Location(BaseModel):
@@ -24,6 +25,7 @@ class Location(BaseModel):
 class LocationShow(Location):
     departments: list['Department']
     teams_of_actors: list['TeamOfActors']
+    institution_actors: 'InstitutionActors'
 
     @field_validator('departments', 'teams_of_actors')
     def set_to_list(cls, values):  # sourcery skip: identity-comprehension
@@ -47,6 +49,7 @@ class InstitutionActors(BaseModel):
 class InstitutionActorsShow(InstitutionActors):
     actors: list['Actor']
     admin: 'Person'
+    locations: list[Location]
 
 
 class DepartmentCreate(BaseModel):

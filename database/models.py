@@ -15,6 +15,7 @@ class Location(db_clown_control.Entity):
     departments = Set('Department')
     teams_of_actors = Set('TeamOfActors')
     admin = Required('Person')
+    institution_actors = Required('InstitutionActors')
 
     def before_update(self):
         self.last_modified = datetime.datetime.now(datetime.timezone.utc)
@@ -53,6 +54,7 @@ class InstitutionActors(db_clown_control.Entity):
     prep_delete = Optional(datetime.datetime)
     admin = Required(Person)
     actors = Set('Actor')
+    locations = Set(Location)
 
 
 class SuperUser(Person):

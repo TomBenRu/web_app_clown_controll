@@ -179,7 +179,8 @@ class SuperUser:
     @db_session
     def create_location(location: schemas.LocationCreate) -> schemas.LocationShow:
         admin_db = models.Person.get(id=location.admin_id)
-        new_location = models.Location(name=location.name, admin=admin_db)
+        institution_actors_db = models.InstitutionActors.get(id=location.institution_actors_id)
+        new_location = models.Location(name=location.name, admin=admin_db, institution_actors=institution_actors_db)
         return schemas.LocationShow.model_validate(new_location)
 
     @staticmethod

@@ -23,8 +23,3 @@ def create(user: schemas.SuperUserCreate):
 @router.post('/institution-actors', dependencies=[Depends(verify_access_token__superuser)])
 def create_institution_actors(user: schemas.PersonCreate, institution_actors: schemas.InstitutionActorsCreate):
     return request_handler.create_institution_actors(user, institution_actors)
-
-
-@router.post('/location', dependencies=[Depends(verify_access_token__superuser)])
-def create_location(user: schemas.PersonCreate, location: schemas.LocationCreate):
-    return request_handler.create_location(user, location)
