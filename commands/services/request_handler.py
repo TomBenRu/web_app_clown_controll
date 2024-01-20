@@ -1,5 +1,7 @@
+from uuid import UUID
+
 import commands.cmd_super_user
-from commands import cmd_admin, cmd_super_user
+from commands import cmd_admin, cmd_super_user, cmd_actor
 from database import schemas, password_utils, db_services
 
 
@@ -40,3 +42,15 @@ def create_department(department: schemas.DepartmentCreate):
     create_cmd = cmd_admin.CreateDepartment(department)
     create_cmd.execute()
     return create_cmd.created_department
+
+
+def create_team_of_actors(team_of_actors: schemas.TeamOfActorsCreate):
+    create_cmd = cmd_actor.CreateTeamOfActors(team_of_actors)
+    create_cmd.execute()
+    return create_cmd.created_team_of_actors
+
+
+def delete_team_of_actors(team_of_actors_id: UUID):
+    delete_cmd = cmd_actor.DeleteTeamOfActors(team_of_actors_id)
+    delete_cmd.execute()
+    return delete_cmd.deleted_team_of_actors

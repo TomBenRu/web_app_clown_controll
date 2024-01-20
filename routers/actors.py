@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+from commands.services import request_handler
 from database import db_services, schemas
 from oaut2_authentication.authentication import verify_access_token__actor
 
@@ -15,17 +16,23 @@ class CreateTeamData(BaseModel):
     user_ids: list[UUID]
 
 
-@router.get('/all_actors', dependencies=[Depends(verify_access_token__actor)])
-def get_all_actors():
-    return db_services.Actor.get_all_actors()
+@router.get('/all_actors')
+def get_all_actors(token_data: schemas.TokenData = Depends(verify_access_token__actor)):
+    actor = db_services.Actor.get(token_data.id)
+    return db_services.Actor.get_all_actors_of_institution_actors(actor.institution_actors.id)
 
-@router.get('/locations', dependencies=[Depends(verify_access_token__actor)])
-def get_all_locations():
-    return db_services.Actor.get_all_locations()
+
+@router.get('/locations')
+def get_all_locations(token_data: schemas.TokenData = Depends(verify_access_token__actor)):
+    actor = db_services.Actor.get(token_data.id)
+    return db_services.Actor.get_all_locations_of_institution_actors(actor.institution_actors.id)
+
 
 @router.post('/new-team', dependencies=[Depends(verify_access_token__actor)])
-def create_new_team(data: CreateTeamData):  # TODO: Relationship between InstitutionActors and Locations to implement
-    print(f'{data=}')
-    return
+def create_new_team(new_team_data: schemas.TeamOfActorsCreate):
+    return request_handler.create_team_of_actors(new_team_data)
 
-    return db_services.Actor.create_new_team(new_team)
+
+@router.post('/delete-team')
+def delete_team(team_of_actor_id: str, token_data: schemas.TokenData = Depends(verify_access_token__actor)):
+    return request_handler.delete_team_of_actors(UUID(team_of_actor_id))

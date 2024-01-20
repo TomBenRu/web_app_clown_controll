@@ -40,6 +40,7 @@ class InstitutionActorsCreate(BaseModel):
 class InstitutionActors(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: UUID
     name: str
     created_at: datetime.date
     last_modified: datetime.datetime
@@ -123,14 +124,16 @@ class ActorShow(Actor):
 
 
 class TeamOfActorsCreate(BaseModel):
+    id: Optional[UUID] = None
+    location_id: UUID
+    actor_ids: list[UUID]
 
-    location: Location
 
-
-class TeamOfActors(TeamOfActorsCreate):
+class TeamOfActors(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    location: Location
 
 
 class TeamOfActorsShow(TeamOfActors):
@@ -160,5 +163,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    id: UUID | str | None = None
+    id: UUID | None = None
     authorizations: list[str]

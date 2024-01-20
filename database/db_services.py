@@ -50,6 +50,13 @@ class User:
 
 
 class Actor:
+
+    @staticmethod
+    @db_session
+    def get(actor_id: UUID) -> schemas.ActorShow:
+        actor_db = models.Actor.get(id=actor_id)
+        return schemas.ActorShow.model_validate(actor_db)
+
     @staticmethod
     @db_session
     def get_all_actors() -> list[schemas.ActorShow]:
@@ -58,9 +65,46 @@ class Actor:
 
     @staticmethod
     @db_session
+    def get_all_actors_of_institution_actors(institution_actors_id: UUID) -> list[schemas.ActorShow]:
+        institution_actors_db = models.InstitutionActors.get(id=institution_actors_id)
+        actors_db = models.Actor.select(institution_actors=institution_actors_db)
+        return [schemas.ActorShow.model_validate(a) for a in actors_db]
+
+    @staticmethod
+    @db_session
     def get_all_locations() -> list[schemas.LocationShow]:
         locations_db = models.Location.select()
         return [schemas.LocationShow.model_validate(l) for l in locations_db]
+
+    @staticmethod
+    @db_session
+    def get_all_locations_of_institution_actors(institution_actors_id: UUID) -> list[schemas.LocationShow]:
+        institution_actors_db = models.InstitutionActors.get(id=institution_actors_id)
+        locations_db = models.Location.select(institution_actors=institution_actors_db)
+        return [schemas.LocationShow.model_validate(l) for l in locations_db]
+
+    @staticmethod
+    @db_session
+    def create_team_of_actors(new_team: schemas.TeamOfActorsCreate) -> schemas.TeamOfActorsShow:
+        location_db = models.Location.get(id=new_team.location_id)
+        actors_db = [models.Actor.get(id=a) for a in new_team.actor_ids]
+        if new_team.id:
+            new_team_db = models.TeamOfActors(id=new_team.id, location=location_db, actors=actors_db)
+        else:
+            new_team_db = models.TeamOfActors(location=location_db, actors=actors_db)
+        return schemas.TeamOfActorsShow.model_validate(new_team_db)
+
+    @staticmethod
+    @db_session
+    def delete_team_of_actors(team_id: UUID):
+        team_db = models.TeamOfActors.get(id=team_id)
+        team_db.delete()
+
+    @staticmethod
+    @db_session
+    def get_team_of_actors(team_of_actors_id) -> schemas.TeamOfActorsShow:
+        team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
+        return schemas.TeamOfActorsShow.model_validate(team_of_actors_db)
 
 
 class Admin:
