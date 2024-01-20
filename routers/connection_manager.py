@@ -60,20 +60,24 @@ class MessageHandler:
     @staticmethod
     async def handle_message(data: str, websocket: WebSocket, token_data: schemas.TokenData,
                              team_of_actors: schemas.TeamOfActorsShow | None):
-        now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin')).strftime('%H:%M:%S')
+        now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1),
+                                                         'Europe/Berlin')).strftime('%H:%M:%S')
         user = db_services.User.get(token_data.id)
         print(f'{token_data=}')
         if 'department' in token_data.authorizations:
             message_broadcast = f'{user.name} sending: {data}'
             empty_input = templates.get_template('responses/empty_message_input.html').render()
-            message_personal = templates.get_template('responses/clown_call_message.html.j2').render(time=now, message=data)
+            message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
+                time=now, message=data)
             await manager.broadcast_clowns_teams(message_broadcast, websocket)
             await manager.send_personal_department_message(message_personal, websocket)
             await manager.send_personal_department_message(empty_input, websocket)
         else:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
-            message_broadcast = templates.get_template('responses/clown_response.html.j2').render(time=now, message=data)
-            alert_message_rsv = templates.get_template('responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
+            message_broadcast = templates.get_template('responses/clown_response.html.j2').render(
+                time=now, message=data)
+            alert_message_rsv = templates.get_template(
+                'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
             message_personal = f'You sent: {data}'
             await manager.broadcast_departments(alert_message_rsv, websocket)
             await manager.broadcast_departments(message_broadcast, websocket)
