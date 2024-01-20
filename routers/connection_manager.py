@@ -63,7 +63,6 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1),
                                                          'Europe/Berlin')).strftime('%H:%M:%S')
         user = db_services.User.get(token_data.id)
-        print(f'{token_data=}')
         if 'department' in token_data.authorizations:
             message_broadcast = f'{user.name} sending: {data}'
             empty_input = templates.get_template('responses/empty_message_input.html').render()
