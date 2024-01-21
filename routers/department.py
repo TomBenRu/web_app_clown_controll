@@ -5,7 +5,6 @@ from fastapi import APIRouter, Request, Header, status, Depends
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
 
-from database import db_services, schemas
 from database.enums import AuthorizationTypes
 from oaut2_authentication import authentication
 
