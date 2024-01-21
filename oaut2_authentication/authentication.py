@@ -4,7 +4,6 @@ from functools import partial
 from fastapi import HTTPException, status, Request, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from passlib.context import CryptContext
 
 from database import schemas, db_services
 from database.enums import AuthorizationTypes
