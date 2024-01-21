@@ -37,6 +37,8 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             print(f'{token=}')
             print(f'{json.loads(data)=}')
             message = json.loads(data)['chat-message']
+            if message == f'{token}: closing':
+                message = 'Wir verabschieden uns für heute. Danke für die Unterstützung!'
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id)
     except WebSocketDisconnect as e:
         await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id)
