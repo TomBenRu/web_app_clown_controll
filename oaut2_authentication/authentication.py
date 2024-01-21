@@ -52,7 +52,8 @@ verify_access_token__admin_of_institution_actors = partial(verify_access_token,
 verify_access_token__actor = partial(verify_access_token, role=AuthorizationTypes.actor)
 
 
-def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth', role: AuthorizationTypes = None) -> schemas.TokenData:
+def get_current_user_cookie(request: Request, token_key: str = 'clown-call-auth',
+                            role: AuthorizationTypes = None) -> schemas.TokenData:
     if token := request.cookies.get(token_key):
         return verify_access_token(role, token)
     else:
