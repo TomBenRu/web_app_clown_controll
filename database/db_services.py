@@ -107,6 +107,14 @@ class Actor:
         return schemas.TeamOfActorsShow.model_validate(team_of_actors_db)
 
 
+class Department:
+    @staticmethod
+    @db_session
+    def get(department_id: UUID) -> schemas.DepartmentShow:
+        department_db = models.Department.get(id=department_id)
+        return schemas.DepartmentShow.model_validate(department_db)
+
+
 class Admin:
     @staticmethod
     @db_session

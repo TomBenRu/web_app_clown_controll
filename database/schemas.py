@@ -77,6 +77,10 @@ class Department(BaseModel):
     location: Location
 
 
+class DepartmentShow(Department):
+    pass
+
+
 class PersonCreate(BaseModel):
     id: Optional[UUID] = None
     username: str

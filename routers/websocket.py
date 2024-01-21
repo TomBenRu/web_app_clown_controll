@@ -25,7 +25,6 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
         except Exception as e:
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
             return
-    print(f'{token_data=}')
 
     await MessageHandler.user_joined_message(token_data, websocket, team_of_actors)
     try:

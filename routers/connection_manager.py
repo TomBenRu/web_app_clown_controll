@@ -1,4 +1,5 @@
 import datetime
+from uuid import UUID
 
 from fastapi import WebSocket
 from fastapi.templating import Jinja2Templates
@@ -17,10 +18,8 @@ class ConnectionManager:
         await websocket.accept()
         if department:
             self.active_department_connections.append(websocket)
-            print(f'-------------------------------------------------------------{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections.append(websocket)
-            print(f'-----------------------------------------------------------{self.active_clowns_teams_connections=}')
 
     def disconnect(self, websocket: WebSocket, department: bool):
         if department:
@@ -45,7 +44,9 @@ class ConnectionManager:
             await connection.send_text(message)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str):
+        print(f'{websocket.headers=}')
         for ws in self.active_department_connections:
+            print(f'{ws.headers=}')
             await ws.send_text(message)
 
     async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str):
@@ -106,6 +107,7 @@ class MessageHandler:
             manager.disconnect(websocket, True)
         else:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
+
             message = templates.get_template('responses/alert_clowns_team_left.html.j2').render(team=f'Clowns-Team: {actors}')
             await manager.send_alert_to_departments(websocket, message)
             manager.disconnect(websocket, False)
