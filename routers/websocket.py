@@ -27,6 +27,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             team_of_actors = db_services.Actor.get_team_of_actors(team_of_actors_id)
             location_id = team_of_actors.location.id
         except Exception as e:
+            print(f'Fehler: {e}')
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
             return
 
