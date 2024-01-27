@@ -1,4 +1,5 @@
 import datetime
+import json
 from collections import defaultdict
 from uuid import UUID
 
@@ -69,6 +70,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             message_broadcast = f'{user.name} sending: {data}'
+            message_broadcast = json.dumps({'sender_id': str(token_data.id), 'message': data, 'time': str(datetime.datetime.now())})
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
                 time=now, message=data)
@@ -81,7 +83,7 @@ class MessageHandler:
                 time=now, message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
-            message_personal = f'You sent: {data}'
+            message_personal = json.dumps({'send_confirmation': data})
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id)
             await manager.broadcast_departments(message_broadcast, websocket, location_id)
             await manager.send_personal_clowns_team_message(message_personal, websocket)
@@ -93,6 +95,7 @@ class MessageHandler:
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
             message = f'{user.name} has just joined.'
+            message = json.dumps({'sender_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
         else:
             await manager.connect(websocket, False, location_id)
@@ -106,6 +109,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             message = f'{user.name} has just left.'
+            message = json.dumps({'sender_id': str(token_data.id), 'left': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             manager.disconnect(websocket, True, location_id)
         else:

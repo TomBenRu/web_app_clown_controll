@@ -85,6 +85,13 @@ class Actor:
 
     @staticmethod
     @db_session
+    def get_all_departments_of_location(location_id) -> list[schemas.DepartmentShow]:
+        location_db = models.Location.get(id=location_id)
+        departments_db = models.Department.select(location=location_db)
+        return [schemas.DepartmentShow.model_validate(d) for d in departments_db]
+
+    @staticmethod
+    @db_session
     def create_team_of_actors(new_team: schemas.TeamOfActorsCreate) -> schemas.TeamOfActorsShow:
         location_db = models.Location.get(id=new_team.location_id)
         actors_db = [models.Actor.get(id=a) for a in new_team.actor_ids]

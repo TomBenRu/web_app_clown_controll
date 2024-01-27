@@ -28,6 +28,11 @@ def get_all_locations(token_data: schemas.TokenData = Depends(verify_access_toke
     return db_services.Actor.get_all_locations_of_institution_actors(actor.institution_actors.id)
 
 
+@router.get('/departments_of_location', dependencies=[Depends(verify_access_token__actor)])
+def get_all_departments_of_location(location_id: UUID):
+    return db_services.Actor.get_all_departments_of_location(location_id)
+
+
 @router.post('/new-team', dependencies=[Depends(verify_access_token__actor)])
 def create_new_team(new_team_data: schemas.TeamOfActorsCreate):
     return request_handler.create_team_of_actors(new_team_data)
