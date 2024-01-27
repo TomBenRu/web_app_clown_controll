@@ -69,7 +69,6 @@ class MessageHandler:
                                                          'Europe/Berlin')).strftime('%H:%M:%S')
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message_broadcast = f'{user.name} sending: {data}'
             message_broadcast = json.dumps({'sender_id': str(token_data.id), 'message': data, 'time': str(datetime.datetime.now())})
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
@@ -94,7 +93,6 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = f'{user.name} has just joined.'
             message = json.dumps({'sender_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
         else:
@@ -108,7 +106,6 @@ class MessageHandler:
                                  team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message = f'{user.name} has just left.'
             message = json.dumps({'sender_id': str(token_data.id), 'left': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             manager.disconnect(websocket, True, location_id)
