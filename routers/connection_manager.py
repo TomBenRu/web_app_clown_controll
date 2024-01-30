@@ -37,9 +37,15 @@ class ConnectionManager:
     async def send_personal_clowns_team_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast_departments(self, message: str, original_websocket: WebSocket, location_id: UUID):
-        for connection in self.active_department_connections[location_id]:
-            await connection.send_text(message)
+    async def broadcast_departments(self, message: str, original_websocket: WebSocket, location_id: UUID, receiver_id: str | None):
+        for ws in self.active_department_connections[location_id]:
+            if receiver_id:
+                token = ws.cookies['clown-call-auth']
+                token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
+                if token_data.id == receiver_id:
+                    await ws.send_text(message)
+                    return
+            await ws.send_text(message)
 
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
@@ -89,8 +95,8 @@ class MessageHandler:
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
             message_personal = json.dumps({'send_confirmation': data, 'receiver_id': receiver_id})
-            await manager.broadcast_departments(alert_message_rsv, websocket, location_id)
-            await manager.broadcast_departments(message_broadcast, websocket, location_id)
+            await manager.broadcast_departments(alert_message_rsv, websocket, location_id, receiver_id)
+            await manager.broadcast_departments(message_broadcast, websocket, location_id, receiver_id)
             await manager.send_personal_clowns_team_message(message_personal, websocket)
 
     @staticmethod
