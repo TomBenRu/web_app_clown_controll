@@ -64,7 +64,8 @@ manager = ConnectionManager()
 class MessageHandler:
     @staticmethod
     async def handle_message(data: str, websocket: WebSocket, token_data: schemas.TokenData,
-                             team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
+                             team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID,
+                             receiver_id: str | None):
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1),
                                                          'Europe/Berlin')).strftime('%H:%M:%S')
         user = db_services.User.get(token_data.id)
@@ -82,7 +83,7 @@ class MessageHandler:
                 time=now, message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
-            message_personal = json.dumps({'send_confirmation': data})
+            message_personal = json.dumps({'send_confirmation': data, 'receiver_id': receiver_id})
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id)
             await manager.broadcast_departments(message_broadcast, websocket, location_id)
             await manager.send_personal_clowns_team_message(message_personal, websocket)
