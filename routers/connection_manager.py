@@ -59,7 +59,7 @@ class ConnectionManager:
         for ws in self.active_department_connections[location_id]:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
-            message = json.dumps({'sender_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
+            message = json.dumps({'department_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
             await websocket.send_text(message)
 
 
@@ -75,7 +75,7 @@ class MessageHandler:
                                                          'Europe/Berlin')).strftime('%H:%M:%S')
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message_broadcast = json.dumps({'sender_id': str(token_data.id), 'message': data, 'time': str(datetime.datetime.now())})
+            message_broadcast = json.dumps({'department_id': str(token_data.id), 'message': data, 'time': str(datetime.datetime.now())})
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
                 time=now, message=data)
@@ -99,7 +99,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = json.dumps({'sender_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
+            message = json.dumps({'department_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
         else:
             await manager.connect(websocket, False, location_id)
@@ -114,7 +114,7 @@ class MessageHandler:
                                  team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message = json.dumps({'sender_id': str(token_data.id), 'left': True, 'time': str(datetime.datetime.now())})
+            message = json.dumps({'department_id': str(token_data.id), 'left': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             manager.disconnect(websocket, True, location_id)
         else:
