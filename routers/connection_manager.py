@@ -42,7 +42,7 @@ class ConnectionManager:
             if receiver_id:
                 token = ws.cookies['clown-call-auth']
                 token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
-                if token_data.id == receiver_id:
+                if str(token_data.id) == receiver_id:
                     await ws.send_text(message)
                     return
             await ws.send_text(message)
