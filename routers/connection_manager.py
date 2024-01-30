@@ -45,7 +45,8 @@ class ConnectionManager:
                 if str(token_data.id) == receiver_id:
                     await ws.send_text(message)
                     return
-            await ws.send_text(message)
+            else:
+                await ws.send_text(message)
 
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
