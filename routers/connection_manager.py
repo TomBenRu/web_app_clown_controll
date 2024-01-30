@@ -7,6 +7,8 @@ from fastapi import WebSocket
 from fastapi.templating import Jinja2Templates
 
 from database import schemas, db_services
+from database.enums import AuthorizationTypes
+from oaut2_authentication import authentication
 
 templates = Jinja2Templates('templates')
 
@@ -20,18 +22,14 @@ class ConnectionManager:
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].append(websocket)
-            print(f'{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections[location_id].append(websocket)
-            print(f'{self.active_clowns_teams_connections=}')
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID):
         if department:
             self.active_department_connections[location_id].remove(websocket)
-            print(f'{self.active_department_connections=}')
         else:
             self.active_clowns_teams_connections[location_id].remove(websocket)
-            print(f'{self.active_clowns_teams_connections=}')
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -56,6 +54,13 @@ class ConnectionManager:
     async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str, location_id: UUID):
         for ws in self.active_clowns_teams_connections[location_id]:
             await ws.send_text(message)
+
+    async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID):
+        for ws in self.active_department_connections[location_id]:
+            token = ws.cookies['clown-call-auth']
+            token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
+            message = json.dumps({'sender_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
+            await websocket.send_text(message)
 
 
 manager = ConnectionManager()
@@ -99,8 +104,10 @@ class MessageHandler:
         else:
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
-            message = templates.get_template('responses/alert_clowns_team_joined.html.j2').render(team=f'Clowns-Team: {actors}')
-            await manager.send_alert_to_departments(websocket, message, location_id)
+            message_to_departments = templates.get_template('responses/alert_clowns_team_joined.html.j2').render(team=f'Clowns-Team: {actors}')
+
+            await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
+            await manager.send_personal_clowns_team_message_departments_joined(websocket, location_id)
 
     @staticmethod
     async def user_leave_message(token_data: schemas.TokenData, websocket,
