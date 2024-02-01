@@ -130,4 +130,3 @@ class MessageHandler:
             message = templates.get_template('responses/alert_clowns_team_left.html.j2').render(team=f'Clowns-Team: {actors}')
             await manager.send_alert_to_departments(websocket, message, location_id)
             manager.disconnect(websocket, False, location_id)
-
