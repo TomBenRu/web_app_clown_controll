@@ -35,9 +35,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
     try:
         while True:
             data = await websocket.receive_text()
-            print(f'{token=}')
             data_dict = json.loads(data)
-            print(f'{data_dict=}')
             message = data_dict['chat-message']
             receiver_id = data_dict.get('receiver_id')
             if data_dict.get('closing'):
