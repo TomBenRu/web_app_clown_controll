@@ -72,6 +72,13 @@ class Actor:
 
     @staticmethod
     @db_session
+    def get_all_available_actors_of_institution_actors(institution_actors_id: UUID) -> list[schemas.ActorShow]:
+        institution_actors_db = models.InstitutionActors.get(id=institution_actors_id)
+        actors_db = models.Actor.select(institution_actors=institution_actors_db)
+        return [schemas.ActorShow.model_validate(a) for a in actors_db if not a.team_of_actors]
+
+    @staticmethod
+    @db_session
     def get_all_locations() -> list[schemas.LocationShow]:
         locations_db = models.Location.select()
         return [schemas.LocationShow.model_validate(l) for l in locations_db]

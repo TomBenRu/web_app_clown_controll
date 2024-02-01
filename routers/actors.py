@@ -22,6 +22,12 @@ def get_all_actors(token_data: schemas.TokenData = Depends(verify_access_token__
     return db_services.Actor.get_all_actors_of_institution_actors(actor.institution_actors.id)
 
 
+@router.get('/all_available_actors')
+def get_all_available_actors(token_data: schemas.TokenData = Depends(verify_access_token__actor)):
+    actor = db_services.Actor.get(token_data.id)
+    return db_services.Actor.get_all_available_actors_of_institution_actors(actor.institution_actors.id)
+
+
 @router.get('/locations')
 def get_all_locations(token_data: schemas.TokenData = Depends(verify_access_token__actor)):
     actor = db_services.Actor.get(token_data.id)

@@ -41,8 +41,8 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             message = data_dict['chat-message']
             receiver_id = data_dict.get('receiver_id')
             if data_dict.get('closing'):
-                print('closing')  # todo: delete clowns_team from database, delete pending messages to clowns_team
+                print('closing')  # todo: delete clowns_team from database, delete pending messages to clowns_team, delete ws from active_clowns_teams_connections
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
-    except WebSocketDisconnect as e:
+    except WebSocketDisconnect as e:  # todo:
         await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id)
