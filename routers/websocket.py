@@ -43,7 +43,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
                 print('...........................closing')  # todo: delete clowns_team from database, delete pending messages to clowns_team, delete ws from active_clowns_teams_connections
                 await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id)
                 await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
-                                                    receiver_id)
+                                                    receiver_id, closing=True)
                 return
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
