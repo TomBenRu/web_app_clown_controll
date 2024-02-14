@@ -131,3 +131,12 @@ class MessageHandler:
             message = templates.get_template('responses/alert_clowns_team_left.html.j2').render(team=f'Clowns-Team: {actors}')
             await manager.send_alert_to_departments(websocket, message, location_id)
             manager.disconnect(websocket, False, location_id)
+
+    @staticmethod
+    async def user_connection_lost(token_data: schemas.TokenData, websocket,
+                                   team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
+        if team_of_actors:
+            actors = ', '.join([a.artist_name for a in team_of_actors.actors])
+            message = (templates.get_template('responses/alert_clowns_team_connection_lost.html.j2')
+                       .render(team=f'Clowns-Team: {actors}'))
+            await manager.send_alert_to_departments(websocket, message, location_id)
