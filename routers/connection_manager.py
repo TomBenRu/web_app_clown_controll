@@ -66,7 +66,8 @@ class ConnectionManager:
         for ws in self.active_department_connections[location_id]:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
-            message = json.dumps({'department_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
+            message = json.dumps({'department_id': str(token_data.id), 'joined': True,
+                                  'time': str(datetime.datetime.now())})
             await websocket.send_text(message)
 
 
