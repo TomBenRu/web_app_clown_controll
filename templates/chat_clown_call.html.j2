@@ -5,7 +5,7 @@
     {% include "responses/audio_alert.html.j2" %}
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
-    <div hx-ext="ws" ws-connect="/ws/">
+    <div class="mt-4 w-9/10 mx-auto" hx-ext="ws" ws-connect="/ws/">
         <h2>Neue Nachrichten:</h2>
         <table class="min-w-[50%] mb-4 bg-gradient-to-r from-indigo-500 to-pink-500">
             <thead class="border-b text-lg">
