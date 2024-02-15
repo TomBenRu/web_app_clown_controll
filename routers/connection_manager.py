@@ -136,6 +136,9 @@ class MessageHandler:
     @staticmethod
     async def user_connection_lost(token_data: schemas.TokenData, websocket,
                                    team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
+        print(f'............................ Connection lost for user {token_data.id}\n'
+              f'{manager.active_department_connections=}\n'
+              f'{manager.active_clowns_teams_connections=}')
         if team_of_actors:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
             message = (templates.get_template('responses/alert_clowns_team_connection_lost.html.j2')
