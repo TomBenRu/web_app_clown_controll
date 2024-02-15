@@ -44,6 +44,6 @@ def create_new_team(new_team_data: schemas.TeamOfActorsCreate):
     return request_handler.create_team_of_actors(new_team_data)
 
 
-@router.post('/delete-team')
+@router.delete('/delete-team')
 def delete_team(team_of_actor_id: str, token_data: schemas.TokenData = Depends(verify_access_token__actor)):
     return request_handler.delete_team_of_actors(UUID(team_of_actor_id))
