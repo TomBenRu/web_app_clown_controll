@@ -124,7 +124,7 @@ class MessageHandler:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
             teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
                       for ws in manager.active_clowns_teams_connections[location_id]])
-            text_teams = ', '.join([str([a.artist_name for a in t.actors]) for t in teams])
+            text_teams = ' | '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}" for t in teams])
 
             message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
                                       .render(team=f'Clowns-Team: {actors}'))
@@ -159,7 +159,7 @@ class MessageHandler:
             teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
                       for ws in manager.active_clowns_teams_connections[location_id]])
             if teams:
-                text_teams = ', '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}" for t in teams])
+                text_teams = ' | '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}" for t in teams])
             else:
                 if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
                     disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
