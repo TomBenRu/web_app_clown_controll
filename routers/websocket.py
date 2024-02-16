@@ -41,11 +41,12 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             print(f'..........................{data_dict=}')
             if data_dict.get('closing'):
                 print('...........................closing')  # todo: delete clowns_team from database, delete pending messages to clowns_team, delete ws from active_clowns_teams_connections
-                await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id)
+                await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, False)
                 await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                     receiver_id, closing=True)
                 return
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
     except WebSocketDisconnect as e:  # todo:
-        await MessageHandler.user_connection_lost(token_data, websocket, team_of_actors, location_id)
+        # await MessageHandler.user_connection_lost(token_data, websocket, team_of_actors, location_id)
+        await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, True)
