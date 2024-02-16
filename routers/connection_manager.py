@@ -117,7 +117,7 @@ class MessageHandler:
             note_presence = templates.get_template('responses/note_clowns_teams_presence.html.j2').render(text_teams=actors)
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            await manager.broadcast_departments(note_presence, websocket, location_id)
+            await manager.broadcast_departments(note_presence, websocket, location_id, None)
             await manager.send_personal_clowns_team_message_departments_joined(websocket, location_id)
 
     @staticmethod
