@@ -24,7 +24,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
         try:
             token_data = authentication.verify_access_token(AuthorizationTypes.actor, token)
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
-            team_of_actors = db_services.Actor.get_team_of_actors(team_of_actors_id)
+            team_of_actors = db_services.Actor.get_team_of_actors(UUID(team_of_actors_id))
             location_id = team_of_actors.location.id
         except Exception as e:
             print(f'Fehler: {e}')
@@ -48,5 +48,4 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
     except WebSocketDisconnect as e:  # todo:
-        # await MessageHandler.user_connection_lost(token_data, websocket, team_of_actors, location_id)
         await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, True)
