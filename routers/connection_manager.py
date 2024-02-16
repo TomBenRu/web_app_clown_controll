@@ -161,10 +161,13 @@ class MessageHandler:
             if teams:
                 text_teams = ', '.join([str([a.artist_name for a in t.actors]) for t in teams])
             else:
-                if manager.disconnected_clowns_teams[location_id]:
-                    text_teams = 'Im Haus aber nicht erreichbar'
+                if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
+                    disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
+                                                 for team_id in disconnected_team_ids]
+                    text_team_names = ', '.join([str([a.artist_name for a in t.actors]) for t in disconnected_clowns_teams])
+                    text_teams = f'{text_team_names} nicht erreichbar'
                 else:
-                    text_teams = 'Zurzeit nicht im Haus'
+                    text_teams = 'Kein Clowns-Team'
 
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                              .render(text_teams=text_teams))
