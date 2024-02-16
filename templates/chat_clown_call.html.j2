@@ -6,7 +6,10 @@
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
     <div class="px-8" hx-ext="ws" ws-connect="/ws/">
-        <h1 class="text-4xl font-bold text-blue-100">{{ department_name }}</h1><span class="text-sm text-red-500">* Ihr Hinweis hier</span>
+        <div class="flex items-center space-x-2">
+            <h1 class="text-4xl font-bold text-blue-100">{{ department_name }}</h1>
+            <span class="text-sm text-red-500">* Ihr Hinweis hier</span>
+        </div>
         <h2 class="text-2xl font-bold text-blue-100">{{ department_descriptive_name }}</h2>
         <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
             <thead class="border-b text-lg">
