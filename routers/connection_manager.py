@@ -122,8 +122,15 @@ class MessageHandler:
         else:
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
-            message_to_departments = templates.get_template('responses/alert_clowns_team_joined.html.j2').render(team=f'Clowns-Team: {actors}')
-            note_presence = templates.get_template('responses/note_clowns_teams_presence.html.j2').render(text_teams=actors)
+            teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
+                      for ws in manager.active_clowns_teams_connections[location_id]]
+                     + [db_services.Actor.get_team_of_actors(UUID(websocket.headers['team_of_actors_id']))])
+            text_teams = ', '.join([str([a.artist_name for a in t.actors]) for t in teams])
+
+            message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
+                                      .render(team=f'Clowns-Team: {actors}'))
+            note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
+                             .render(text_teams=text_teams))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             await manager.broadcast_departments(note_presence, websocket, location_id, None)
@@ -149,21 +156,3 @@ class MessageHandler:
                            .render(team=f'Clowns-Team: {actors}'))
             await manager.send_alert_to_departments(websocket, message, location_id)
             manager.disconnect(websocket, False, location_id, connection_lost)
-
-    # @staticmethod
-    # async def user_connection_lost(token_data: schemas.TokenData, websocket,
-    #                                team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
-    #     print(f'............................ Connection lost for user {token_data.id}\n'
-    #           f'{manager.active_department_connections=}\n'
-    #           f'{manager.active_clowns_teams_connections=}')
-    #     if team_of_actors:
-    #         actors = ', '.join([a.artist_name for a in team_of_actors.actors])
-    #         message = (templates.get_template('responses/alert_clowns_team_connection_lost.html.j2')
-    #                    .render(team=f'Clowns-Team: {actors}'))
-    #         await manager.send_alert_to_departments(websocket, message, location_id)
-    #         manager.disconnect(websocket, False, location_id)
-    #     else:
-    #         message = json.dumps(
-    #             {'department_id': str(token_data.id), 'left': True, 'time': str(datetime.datetime.now())})
-    #         await manager.send_alert_to_clown_teams(websocket, message, location_id)
-    #         manager.disconnect(websocket, True, location_id)
