@@ -100,6 +100,9 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     else:
         text_teams_offline = ''
 
+    if not text_teams_online and not text_teams_offline:
+        text_teams_offline = 'Zur Zeit kein Clowns-Team.'
+
     return text_teams_online, text_teams_offline
 
 
@@ -177,8 +180,6 @@ class MessageHandler:
             await manager.send_alert_to_departments(websocket, message, location_id)
 
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
-            if not text_teams_online and not text_teams_offline:
-                text_teams_offline = 'Keine Clowns-Teams angemeldet.'
 
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
