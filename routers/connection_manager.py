@@ -139,7 +139,7 @@ class MessageHandler:
                                              for team_id in disconnected_team_ids]
                 text_team_names = ', '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}"
                                              for t in disconnected_clowns_teams])
-                text_teams = f'{text_team_names} nicht erreichbar'
+                text_teams = f'{text_team_names}  ... nicht erreichbar'
             else:
                 text_teams = 'Kein Clowns-Team'
         note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
@@ -177,7 +177,7 @@ class MessageHandler:
                                                  for team_id in disconnected_team_ids]
                     text_team_names = ', '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}"
                                                  for t in disconnected_clowns_teams])
-                    text_teams = f'{text_team_names} nicht erreichbar'
+                    text_teams = f'{text_team_names}  ... nicht erreichbar'
                 else:
                     text_teams = 'Kein Clowns-Team'
 
