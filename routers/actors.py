@@ -39,6 +39,11 @@ def get_all_departments_of_location(location_id: UUID):
     return db_services.Actor.get_all_departments_of_location(location_id)
 
 
+@router.get('/team_of_actors', dependencies=[Depends(verify_access_token__actor)])
+def get_team_of_actors(team_of_actors_id: UUID):
+    return db_services.Actor.get_team_of_actors(team_of_actors_id)
+
+
 @router.post('/new-team', dependencies=[Depends(verify_access_token__actor)])
 def create_new_team(new_team_data: schemas.TeamOfActorsCreate):
     return request_handler.create_team_of_actors(new_team_data)
