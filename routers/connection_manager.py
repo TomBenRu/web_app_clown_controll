@@ -122,18 +122,29 @@ class MessageHandler:
         else:
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
-            teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
-                      for ws in manager.active_clowns_teams_connections[location_id]])
-            text_teams = ' | '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}" for t in teams])
 
             message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
                                       .render(team=f'Clowns-Team: {actors}'))
-            note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
-                             .render(text_teams=text_teams))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            await manager.broadcast_departments(note_presence, websocket, location_id, None)
             await manager.send_personal_clowns_team_message_departments_joined(websocket, location_id)
+
+        teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
+                  for ws in manager.active_clowns_teams_connections[location_id]])
+        if teams:
+            text_teams = ' | '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}" for t in teams])
+        else:
+            if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
+                disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
+                                             for team_id in disconnected_team_ids]
+                text_team_names = ', '.join([f"Teams: {', '.join([a.artist_name for a in t.actors])}"
+                                             for t in disconnected_clowns_teams])
+                text_teams = f'{text_team_names} nicht erreichbar'
+            else:
+                text_teams = 'Kein Clowns-Team'
+        note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
+                         .render(text_teams=text_teams))
+        await manager.broadcast_departments(note_presence, websocket, location_id, None)
 
     @staticmethod
     async def user_leave_message(token_data: schemas.TokenData, websocket,
