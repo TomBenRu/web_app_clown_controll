@@ -1,9 +1,14 @@
 <div class="flex items-center space-x-16" id="note-clowns-teams-presence" hx-swap-oob="true">
     <span class="text-2xl text-orange-50">Zur Zeit im Haus ...  </span>
-    {% if text_teams_online %}
-        <span class="text-2xl text-green-500">{{ text_teams_online }}</span>
-    {% endif %}
-    {% if text_teams_offline %}
-        <span class="text-2xl text-orange-500">{{ text_teams_offline }}</span>
-    {% endif %}
+    <div class="flex items-center space-x-6">
+        {% if text_teams_online %}
+            <span class="text-2xl text-green-500">{{ text_teams_online }}</span>
+        {% endif %}
+        {% if text_teams_online and text_teams_offline %}
+            <span class="text-2xl text-orange-50">|</span>
+        {% endif %}
+        {% if text_teams_offline %}
+            <span class="text-2xl text-orange-500">{{ text_teams_offline }}</span>
+        {% endif %}
+    </div>
 </div>

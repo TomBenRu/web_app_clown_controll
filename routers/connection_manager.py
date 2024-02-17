@@ -95,8 +95,6 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
                                      for team_id in disconnected_team_ids]
         text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
                                          for t in disconnected_clowns_teams]) + ' (offline)'
-        if teams_online:
-            text_teams_offline = f' || {text_teams_offline}'
     else:
         text_teams_offline = ''
 
