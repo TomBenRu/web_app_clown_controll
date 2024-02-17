@@ -87,14 +87,16 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
                      for ws in manager.active_clowns_teams_connections[location_id]])
     if teams_online:
         text_teams_online = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
-                                        for t in teams_online])
+                                        for t in teams_online]) + ' (online)'
     else:
         text_teams_online = ''
     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
         disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
                                      for team_id in disconnected_team_ids]
         text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
-                                         for t in disconnected_clowns_teams])
+                                         for t in disconnected_clowns_teams]) + ' (offline)'
+        if teams_online:
+            text_teams_offline = f' || {text_teams_offline}'
     else:
         text_teams_offline = ''
 
@@ -147,20 +149,7 @@ class MessageHandler:
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             await manager.send_personal_clowns_team_message_departments_joined(websocket, location_id)
-
-        # teams = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
-        #           for ws in manager.active_clowns_teams_connections[location_id]])
-        # if teams:
-        #     text_teams = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"''' for t in teams])
-        # else:
-        #     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
-        #         disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
-        #                                      for team_id in disconnected_team_ids]
-        #         text_team_names = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
-        #                                      for t in disconnected_clowns_teams])
-        #         text_teams = f'{text_team_names}  ... nicht erreichbar'
-        #     else:
-        #         text_teams = 'Kein Clowns-Team'
+            
         text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
         note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                          .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
@@ -187,21 +176,9 @@ class MessageHandler:
                            .render(team=f'Clowns-Team: {actors}'))
             await manager.send_alert_to_departments(websocket, message, location_id)
 
-            # teams_online = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
-            #                 for ws in manager.active_clowns_teams_connections[location_id]])
-            # if teams_online:
-            #     text_teams_online = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"''' for t in teams_online])
-            # else:
-            #     text_teams_online = ''
-            # if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
-            #     disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
-            #                                      for team_id in disconnected_team_ids]
-            #     text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
-            #                                      for t in disconnected_clowns_teams])
-            # else:
-            #     text_teams_offline = ''
-
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
+            if not text_teams_online and not text_teams_offline:
+                text_teams_offline = 'Keine Clowns-Teams angemeldet.'
 
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
