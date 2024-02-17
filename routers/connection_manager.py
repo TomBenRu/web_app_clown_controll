@@ -99,7 +99,7 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
         text_teams_offline = ''
 
     if not text_teams_online and not text_teams_offline:
-        text_teams_offline = 'Zur Zeit kein Clowns-Team.'
+        text_teams_offline = 'Kein Clowns-Team.'
 
     return text_teams_online, text_teams_offline
 
