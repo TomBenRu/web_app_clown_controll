@@ -127,11 +127,14 @@ class MessageHandler:
                 time=now, message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
-            message_personal = json.dumps({'send_confirmation': data, 'receiver_id': receiver_id})
+            message_personal = json.dumps({'send_confirmation': data,
+                                           'sender_id': websocket.headers.get('team_of_actors_id'),
+                                           'receiver_id': receiver_id})
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id, receiver_id)
             await manager.broadcast_departments(message_broadcast, websocket, location_id, receiver_id)
             if not closing:
-                await manager.send_personal_clowns_team_message(message_personal, websocket)
+                # await manager.send_personal_clowns_team_message(message_personal, websocket)
+                await manager.broadcast_clowns_teams(message_personal, websocket, location_id)
 
     @staticmethod
     async def user_joined_message(token_data: schemas.TokenData, websocket: WebSocket,
