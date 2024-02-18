@@ -33,6 +33,8 @@ class ConnectionManager:
             self.active_clowns_teams_connections[location_id].append(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
                 # self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
+                for message in self.disconnected_clowns_teams[location_id][t_of_a_id]:
+                    await websocket.send_text(message)
                 del self.disconnected_clowns_teams[location_id][t_of_a_id]
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
