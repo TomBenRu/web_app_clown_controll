@@ -120,6 +120,13 @@ class Actor:
         team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
         return schemas.TeamOfActorsShow.model_validate(team_of_actors_db)
 
+    @staticmethod
+    @db_session
+    def get_all_teams_of_actors(location_id) -> list[schemas.TeamOfActorsShow]:
+        location_db = models.Location.get(id=location_id)
+        teams_db = models.TeamOfActors.select(location=location_db)
+        return [schemas.TeamOfActorsShow.model_validate(t) for t in teams_db]
+
 
 class Department:
     @staticmethod
@@ -127,12 +134,6 @@ class Department:
     def get(department_id: UUID) -> schemas.DepartmentShow:
         department_db = models.Department.get(id=department_id)
         return schemas.DepartmentShow.model_validate(department_db)
-
-    @staticmethod
-    @db_session
-    def get_all_departments() -> list[schemas.DepartmentShow]:
-        departments_db = models.Department.select()
-        return [schemas.DepartmentShow.model_validate(d) for d in departments_db]
 
 
 class Admin:
