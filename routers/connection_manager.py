@@ -76,6 +76,8 @@ class ConnectionManager:
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
             await connection.send_text(message)
+        for messages in self.disconnected_clowns_teams[location_id].values():
+            messages.append(message)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
         print(f'{websocket.headers=}')
