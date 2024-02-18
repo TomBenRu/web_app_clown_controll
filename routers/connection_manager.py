@@ -42,7 +42,7 @@ class ConnectionManager:
         if websocket.headers.get("team_of_actors_id"):
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
             team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}', flush=True)
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}, {connection_lost=}', flush=True)
         if department:
             self.active_department_connections[location_id].remove(websocket)
         else:
