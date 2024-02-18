@@ -16,10 +16,8 @@ templates = Jinja2Templates('templates')
 
 class ConnectionManager:
     def __init__(self):
-        self.active_department_connections: defaultdict[UUID, set] = defaultdict(set)
-        self.active_clowns_teams_connections: defaultdict[UUID, set] = defaultdict(set)
-        # set muss verwendet werden, da durch schnelle Verbindungsabbrüche
-        # und -aufnahmen Verdoppelungen entstehen können
+        self.active_department_connections: defaultdict[UUID, list] = defaultdict(list)
+        self.active_clowns_teams_connections: defaultdict[UUID, list] = defaultdict(list)
         self.disconnected_clowns_teams: defaultdict[UUID, defaultdict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
@@ -32,9 +30,20 @@ class ConnectionManager:
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}', flush=True)
         await websocket.accept()
         if department:
-            self.active_department_connections[location_id].add(websocket)
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect: {websocket.headers}', flush=True)
+            # bei schnellen Verbindungsabbrüchen und -wiederherstellungen können Verdoppelungen auftreten,
+            # daher wird hier geprüft, ob die Verbindung mit team_of_actors_id bereits vorhanden ist
+            # for con in self.active_department_connections[location_id]:
+            #     if con.headers.get("team_of_actors_id") == websocket.headers.get("team_of_actors_id"):
+            #         self.active_department_connections[location_id].remove(con)
+            self.active_department_connections[location_id].append(websocket)
         else:
-            self.active_clowns_teams_connections[location_id].add(websocket)
+            # bei schnellen Verbindungsabbrüchen und -wiederherstellungen können Verdoppelungen auftreten,
+            # daher wird hier geprüft, ob die Verbindung mit team_of_actors_id bereits vorhanden ist
+            for con in self.active_clowns_teams_connections[location_id]:
+                if con.headers.get("team_of_actors_id") == websocket.headers.get("team_of_actors_id"):
+                    self.active_clowns_teams_connections[location_id].remove(con)
+            self.active_clowns_teams_connections[location_id].append(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
                 # self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
                 for message in self.disconnected_clowns_teams[location_id][t_of_a_id]:
