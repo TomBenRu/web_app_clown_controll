@@ -22,6 +22,8 @@ class ConnectionManager:
         self.disconnected_clowns_teams: defaultdict[UUID, defaultdict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
+        departments_db = db_services.Department.get_all_departments()
+        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {departments_db=}', flush=True)
         if websocket.headers.get("team_of_actors_id"):
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
             team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]

@@ -128,6 +128,12 @@ class Department:
         department_db = models.Department.get(id=department_id)
         return schemas.DepartmentShow.model_validate(department_db)
 
+    @staticmethod
+    @db_session
+    def get_all_departments() -> list[schemas.DepartmentShow]:
+        departments_db = models.Department.select()
+        return [schemas.DepartmentShow.model_validate(d) for d in departments_db]
+
 
 class Admin:
     @staticmethod
