@@ -42,7 +42,7 @@ class ConnectionManager:
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
             disconnected_clowns_teams = {key: dict(val) for key, val in dict(self.disconnected_clowns_teams).items()}
-            connected_clowns_teams = {key: dict(val) for key, val in dict(self.active_clowns_teams_connections).items()}
+            connected_clowns_teams = dict(self.active_clowns_teams_connections)
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {disconnected_clowns_teams=}', flush=True)
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {connected_clowns_teams=}', flush=True)
 
