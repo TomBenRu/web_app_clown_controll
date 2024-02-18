@@ -154,10 +154,10 @@ class MessageHandler:
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             await manager.send_personal_clowns_team_message_departments_joined(websocket, location_id)
             
-        text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
-        note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
-                         .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
-        await manager.broadcast_departments(note_presence, websocket, location_id, None)
+            text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
+            note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
+                             .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
+            await manager.broadcast_departments(note_presence, websocket, location_id, None)
 
     @staticmethod
     async def user_leave_message(token_data: schemas.TokenData, websocket,
