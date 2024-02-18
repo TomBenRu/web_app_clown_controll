@@ -62,7 +62,10 @@ class ConnectionManager:
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
             disconnected_clowns_teams = {key: dict(val) for key, val in dict(self.disconnected_clowns_teams).items()}
+            connected_clowns_teams = {key: [w.headers.get('team_of_actors_id') for w in val]
+                                      for key, val in self.active_clowns_teams_connections.items()}
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {disconnected_clowns_teams=}', flush=True)
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {connected_clowns_teams=}', flush=True)
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
