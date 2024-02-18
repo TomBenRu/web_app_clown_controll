@@ -22,9 +22,10 @@ class ConnectionManager:
         self.disconnected_clowns_teams: defaultdict[UUID, defaultdict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
-        team_of_actors_id = websocket.headers.get("team_of_actors_id")
-        team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}')
+        if websocket.headers.get("team_of_actors_id"):
+            team_of_actors_id = websocket.headers.get("team_of_actors_id")
+            team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}')
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].append(websocket)
@@ -38,9 +39,10 @@ class ConnectionManager:
                 print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
-        team_of_actors_id = websocket.headers.get("team_of_actors_id")
-        team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}')
+        if websocket.headers.get("team_of_actors_id"):
+            team_of_actors_id = websocket.headers.get("team_of_actors_id")
+            team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}')
         if department:
             self.active_department_connections[location_id].remove(websocket)
         else:
