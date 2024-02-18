@@ -18,7 +18,8 @@ class ConnectionManager:
     def __init__(self):
         self.active_department_connections: defaultdict[UUID, list] = defaultdict(list)
         self.active_clowns_teams_connections: defaultdict[UUID, list] = defaultdict(list)
-        self.disconnected_clowns_teams: defaultdict[UUID, list] = defaultdict(list)
+        # self.disconnected_clowns_teams: defaultdict[UUID, list[str]] = defaultdict(list)
+        self.disconnected_clowns_teams: defaultdict[UUID, defaultdict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         await websocket.accept()
@@ -27,7 +28,10 @@ class ConnectionManager:
         else:
             self.active_clowns_teams_connections[location_id].append(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
-                self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
+                # self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
+                del self.disconnected_clowns_teams[location_id][t_of_a_id]
+                if not self.disconnected_clowns_teams[location_id]:
+                    del self.disconnected_clowns_teams[location_id]
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if department:
@@ -35,7 +39,8 @@ class ConnectionManager:
         else:
             self.active_clowns_teams_connections[location_id].remove(websocket)
             if connection_lost:
-                self.disconnected_clowns_teams[location_id].append(websocket.headers.get("team_of_actors_id"))
+                # self.disconnected_clowns_teams[location_id].append(websocket.headers.get("team_of_actors_id"))
+                self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")].append('')
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
