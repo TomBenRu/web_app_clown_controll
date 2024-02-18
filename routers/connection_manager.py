@@ -23,7 +23,7 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         teams_of_actors_db = db_services.Actor.get_all_teams_of_actors(location_id)
-        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect: teams of actors = '
+        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect: teams of actors in DB = '
               f'{[(t.id, [a.artist_name for a in t.actors]) for t in teams_of_actors_db]}', flush=True)
         if websocket.headers.get("team_of_actors_id"):
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
