@@ -144,6 +144,10 @@ class MessageHandler:
             await manager.connect(websocket, True, location_id)
             message = json.dumps({'department_id': str(token_data.id), 'joined': True, 'time': str(datetime.datetime.now())})
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
+            text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
+            note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
+                             .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
+            await manager.send_personal_department_message(note_presence, websocket)
         else:
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
