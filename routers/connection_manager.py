@@ -40,7 +40,7 @@ class ConnectionManager:
             self.active_clowns_teams_connections[location_id].remove(websocket)
             if connection_lost:
                 # self.disconnected_clowns_teams[location_id].append(websocket.headers.get("team_of_actors_id"))
-                self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")].append('')
+                self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")] = []
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
@@ -64,6 +64,7 @@ class ConnectionManager:
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
             await connection.send_text(message)
+
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
         print(f'{websocket.headers=}')
