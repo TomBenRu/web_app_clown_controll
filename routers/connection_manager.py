@@ -36,7 +36,7 @@ class ConnectionManager:
                 del self.disconnected_clowns_teams[location_id][t_of_a_id]
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
-                print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if websocket.headers.get("team_of_actors_id"):
@@ -50,9 +50,9 @@ class ConnectionManager:
             if connection_lost:
                 # self.disconnected_clowns_teams[location_id].append(websocket.headers.get("team_of_actors_id"))
                 self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")] = []
-                print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
