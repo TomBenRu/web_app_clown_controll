@@ -25,7 +25,7 @@ class ConnectionManager:
         if websocket.headers.get("team_of_actors_id"):
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
             team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}', flush=True)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].append(websocket)
@@ -36,13 +36,13 @@ class ConnectionManager:
                 del self.disconnected_clowns_teams[location_id][t_of_a_id]
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}', flush=True)
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if websocket.headers.get("team_of_actors_id"):
             team_of_actors_id = websocket.headers.get("team_of_actors_id")
             team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! disconnect {team_of_actors}, {team_of_actors_id=}', flush=True)
         if department:
             self.active_department_connections[location_id].remove(websocket)
         else:
@@ -52,7 +52,7 @@ class ConnectionManager:
                 self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")] = []
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {self.disconnected_clowns_teams=}', flush=True)
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
