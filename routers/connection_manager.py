@@ -92,7 +92,6 @@ class ConnectionManager:
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
             connection: WebSocket
-            print(f'------------------------------ {connection.application_state=}, {connection.client_state=}', flush=True)
             await connection.send_text(message)
         for messages in self.disconnected_clowns_teams[location_id].values():
             messages.append(message)
