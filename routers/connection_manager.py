@@ -130,11 +130,15 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
                                         for t in teams_online]) + ' (online)'
     else:
         text_teams_online = ''
+
+    # Falls die Remote-App on ausloggen geschlossen wurde,
+    # kann durch erneutes Einloggen in der Location der Team-Status zurückgesetzt werden:
     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
         disconnected_team_ids = defaultdict(list, {team_id: val for team_id, val in disconnected_team_ids.items()
                                                    if db_services.Actor.get_team_of_actors(UUID(team_id))})
         if not disconnected_team_ids:
             del manager.disconnected_clowns_teams[location_id]
+
     if disconnected_team_ids:
         disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
                                      for team_id in manager.disconnected_clowns_teams[location_id]]
