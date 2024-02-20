@@ -116,9 +116,9 @@ class Actor:
 
     @staticmethod
     @db_session
-    def get_team_of_actors(team_of_actors_id: UUID) -> schemas.TeamOfActorsShow:
+    def get_team_of_actors(team_of_actors_id: UUID) -> schemas.TeamOfActorsShow | None:
         team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
-        return schemas.TeamOfActorsShow.model_validate(team_of_actors_db)
+        return schemas.TeamOfActorsShow.model_validate(team_of_actors_db) if team_of_actors_db else None
 
     @staticmethod
     @db_session

@@ -131,6 +131,8 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     else:
         text_teams_online = ''
     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
+        disconnected_team_ids = defaultdict(list, {team_id: val for team_id, val in disconnected_team_ids.items()
+                                                   if db_services.Actor.get_team_of_actors(UUID(team_id))})
         disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
                                      for team_id in disconnected_team_ids]
         text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
