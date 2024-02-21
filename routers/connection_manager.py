@@ -110,12 +110,12 @@ class ConnectionManager:
             await ws.send_text(message)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
-                                                                   message_id: str, time: str):
+                                                                   message_id: str, time: str, reconnect: bool):
         for ws in self.active_department_connections[location_id]:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
             message = json.dumps({'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(datetime.datetime.now())})
+                                  'time': str(datetime.datetime.now()), reconnect: reconnect})
             await websocket.send_text(message)
 
 
@@ -208,11 +208,12 @@ class MessageHandler:
                                       .render(team=f'Clowns-Team: {actors}'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            # if not clowns_team_offline:
+            reconnect = True if clowns_team_offline else False
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
                                                                                location_id,
                                                                                str(uuid.uuid4()),
-                                                                               str(now))
+                                                                               str(now),
+                                                                               reconnect)
             
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
