@@ -208,11 +208,11 @@ class MessageHandler:
                                       .render(team=f'Clowns-Team: {actors}'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            if not clowns_team_offline:
-                await manager.send_personal_clowns_team_message_departments_joined(websocket,
-                                                                                   location_id,
-                                                                                   str(uuid.uuid4()),
-                                                                                   str(now))
+            # if not clowns_team_offline:
+            await manager.send_personal_clowns_team_message_departments_joined(websocket,
+                                                                               location_id,
+                                                                               str(uuid.uuid4()),
+                                                                               str(now))
             
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
