@@ -37,6 +37,8 @@ class ConnectionManager:
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
 
+            await self.send_pending_clowns_team_messages(websocket)
+
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if department:
             self.active_department_connections[location_id].remove(websocket)
@@ -48,10 +50,21 @@ class ConnectionManager:
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
+    async def send_pending_clowns_team_messages(self, websocket: WebSocket):
+        team_of_actors_id = UUID(websocket.headers.get('team_of_actors_id'))
+        pending_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, True)
+        for session_message in pending_messages:
+            await self.send_personal_clowns_team_message(session_message.message, websocket, False)
+
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def send_personal_clowns_team_message(self, message: str, websocket: WebSocket):
+    async def send_personal_clowns_team_message(self, message: str, websocket: WebSocket, first_try: bool = True):
+        if first_try:
+            db_services.Actor.create_session_message(
+                schemas.SessionMessageCreate(message=message,
+                                             sent=None,
+                                             team_of_actors_id=UUID(websocket.headers.get("team_of_actors_id"))))
         await websocket.send_text(message)
 
     async def broadcast_departments(self, message: str, original_websocket: WebSocket, location_id: UUID, receiver_id: str | None):
@@ -67,6 +80,10 @@ class ConnectionManager:
 
     async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
+            db_services.Actor.create_session_message(
+                schemas.SessionMessageCreate(message=message,
+                                             sent=None,
+                                             team_of_actors_id=UUID(connection.headers.get("team_of_actors_id"))))
             await connection.send_text(message)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
@@ -84,6 +101,10 @@ class ConnectionManager:
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
             message = json.dumps({'department_id': str(token_data.id), 'joined': True,
                                   'time': str(datetime.datetime.now()), 'reconnect': reconnect})
+            db_services.Actor.create_session_message(
+                schemas.SessionMessageCreate(message=message,
+                                             sent=None,
+                                             team_of_actors_id=UUID(websocket.headers.get("team_of_actors_id"))))
             await websocket.send_text(message)
 
 
@@ -152,6 +173,10 @@ class MessageHandler:
             if not closing:
                 # await manager.send_personal_clowns_team_message(message_personal, websocket)
                 await manager.broadcast_clowns_teams(message_personal, websocket, location_id)
+
+    @staticmethod
+    def handle_send_confirmation(confirmation: dict):
+        db_services.Actor.set_session_message_as_sent(UUID(confirmation['message_id']))
 
     @staticmethod
     async def user_joined_message(token_data: schemas.TokenData, websocket: WebSocket,
