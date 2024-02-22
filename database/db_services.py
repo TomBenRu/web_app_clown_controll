@@ -136,7 +136,7 @@ class Actor:
         if unsent:
             print('............................ in unsent')
             session_messages_db = (models.SessionMessage
-                                   .select(team_of_actors=team_of_actors_db, sent=False))
+                                   .select(team_of_actors=team_of_actors_db, sent=None))
             print(f'.................................{session_messages_db=}', flush=True)
         else:
             session_messages_db = (models.SessionMessage
