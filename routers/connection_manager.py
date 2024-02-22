@@ -103,8 +103,8 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     # Falls die Remote-App on ausloggen geschlossen wurde,
     # kann durch erneutes Einloggen in der Location der Team-Status zurückgesetzt werden:
     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
-        disconnected_team_ids = defaultdict(list, {team_id: val for team_id, val in disconnected_team_ids.items()
-                                                   if db_services.Actor.get_team_of_actors(UUID(team_id))})
+        disconnected_team_ids = {team_id for team_id in disconnected_team_ids
+                                 if db_services.Actor.get_team_of_actors(UUID(team_id))}
         if not disconnected_team_ids:
             del manager.disconnected_clowns_teams[location_id]
 
@@ -177,13 +177,13 @@ class MessageHandler:
                                       .render(team=f'Clowns-Team: {actors}'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            reconnect = True if clowns_team_offline else False
+            reconnect = clowns_team_offline
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
                                                                                location_id,
                                                                                str(uuid.uuid4()),
                                                                                str(now),
                                                                                reconnect)
-            
+
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
