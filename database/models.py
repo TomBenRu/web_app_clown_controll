@@ -25,6 +25,7 @@ class TeamOfActors(db_clown_control.Entity):
     id = PrimaryKey(UUID, auto=True)
     actors = Set('Actor')
     location = Required(Location)
+    session_messages = Set('SessionMessage')
 
 
 class User(db_clown_control.Entity):
@@ -61,10 +62,20 @@ class SuperUser(Person):
     pass
 
 
+class SessionMessage(db_clown_control.Entity):
+    id = PrimaryKey(UUID, auto=True)
+    created_at = Required(datetime.datetime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    message = Required(str)
+    sent = Optional(datetime.datetime)
+    team_of_actors = Required(TeamOfActors)
+    department = Optional('Department')
+
+
 class Department(User):
     name = Required(str, 50)
     descriptive_name = Required(str, 50)
     location = Required(Location)
+    session_messages = Set(SessionMessage)
 
     composite_key(name, location)
 
