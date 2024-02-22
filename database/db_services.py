@@ -132,10 +132,12 @@ class Actor:
     def get_all_session_messages_of_team_of_actors(team_of_actors_id: UUID,
                                                    unsent: bool) -> list[schemas.SessionMessageShow]:
         team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
+        print(f'................................ {team_of_actors_db=}', flush=True)
         if unsent:
             session_messages_db = (models.SessionMessage
                                    .select(team_of_actors=team_of_actors_db, sent=False)
                                    .order_by(lambda sm: sm.created_at))
+            print(f'.................................{session_messages_db=}', flush=True)
         else:
             session_messages_db = (models.SessionMessage
                                    .select(team_of_actors=team_of_actors_db)
@@ -158,7 +160,7 @@ class Actor:
     @db_session
     def set_session_message_as_sent(session_message_id: UUID) -> schemas.SessionMessageShow:
         session_message_db = models.SessionMessage.get(id=session_message_id)
-        session_message_db.sent = True
+        session_message_db.sent = datetime.datetime.now(datetime.timezone.utc)
         return schemas.SessionMessageShow.model_validate(session_message_db)
 
 
