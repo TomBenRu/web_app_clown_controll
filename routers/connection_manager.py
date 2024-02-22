@@ -87,7 +87,9 @@ class ConnectionManager:
             await connection.send_text(message)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
+        print('..................................... in send_alert_to_departments')
         for ws in self.active_department_connections[location_id]:
+            print(f'....................................... send to {ws=}')
             await ws.send_text(message)
 
     async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str, location_id: UUID):
@@ -200,6 +202,7 @@ class MessageHandler:
 
             message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
                                       .render(team=f'Clowns-Team: {actors}'))
+            print(f'............................ {message_to_departments=}')
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             reconnect = clowns_team_offline
