@@ -22,6 +22,7 @@ class ConnectionManager:
         self.disconnected_clowns_teams: defaultdict[UUID, set[str]] = defaultdict(set)
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
+        print('............................. in connect', flush=True)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].add(websocket)
@@ -51,6 +52,7 @@ class ConnectionManager:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
     async def send_pending_clowns_team_messages(self, websocket: WebSocket):
+        print('in send_pending_clowns_team_messages', flush=True)
         team_of_actors_id = UUID(websocket.headers.get('team_of_actors_id'))
         pending_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, True)
         for session_message in pending_messages:
@@ -183,6 +185,7 @@ class MessageHandler:
     @staticmethod
     async def user_joined_message(token_data: schemas.TokenData, websocket: WebSocket,
                                   team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID):
+        print('..................................... in user_joined_message', flush=True)
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
@@ -202,7 +205,7 @@ class MessageHandler:
 
             message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
                                       .render(team=f'Clowns-Team: {actors}'))
-            print(f'............................ {message_to_departments=}')
+            print(f'............................ {message_to_departments=}', flush=True)
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             reconnect = clowns_team_offline
