@@ -78,11 +78,7 @@ class Department(BaseModel):
 
 
 class DepartmentShow(Department):
-    session_messages: list['SessionMessage']
-
-    @field_validator('session_messages')
-    def set_to_list(cls, values):  # sourcery skip: identity-comprehension
-        return [v for v in values]
+    pass
 
 
 class PersonCreate(BaseModel):
@@ -157,7 +153,6 @@ class SessionMessageCreate(BaseModel):
     message: str
     sent: Optional[datetime.datetime] = None
     team_of_actors_id: UUID
-    department_id: UUID
 
 
 class SessionMessage(BaseModel):
@@ -171,7 +166,6 @@ class SessionMessage(BaseModel):
 
 class SessionMessageShow(SessionMessage):
     team_of_actors: TeamOfActors
-    department: Department
 
 
 class SuperUserCreate(BaseModel):

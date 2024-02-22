@@ -127,6 +127,40 @@ class Actor:
         teams_db = models.TeamOfActors.select(location=location_db)
         return [schemas.TeamOfActorsShow.model_validate(t) for t in teams_db]
 
+    @staticmethod
+    @db_session
+    def get_all_session_messages_of_team_of_actors(team_of_actors_id: UUID,
+                                                   unsent: bool) -> list[schemas.SessionMessageShow]:
+        team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
+        if unsent:
+            session_messages_db = (models.SessionMessage
+                                   .select(team_of_actors=team_of_actors_db, sent=False)
+                                   .order_by(lambda sm: sm.created_at))
+        else:
+            session_messages_db = (models.SessionMessage
+                                   .select(team_of_actors=team_of_actors_db)
+                                   .order_by(lambda sm: sm.created_at))
+
+        return [schemas.SessionMessageShow.model_validate(sm) for sm in session_messages_db]
+
+    @staticmethod
+    @db_session
+    def create_session_message(session_message: schemas.SessionMessageCreate) -> schemas.SessionMessageShow:
+        team_of_actors_db = models.TeamOfActors.get(id=session_message.team_of_actors_id)
+        department_db = models.Department.get(id=session_message.department_id)
+        session_message_db = models.SessionMessage(team_of_actors=team_of_actors_db,
+                                                   department=department_db,
+                                                   message=session_message.message,
+                                                   sent=None)
+        return schemas.SessionMessageShow.model_validate(session_message_db)
+
+    @staticmethod
+    @db_session
+    def set_session_message_as_sent(session_message_id: UUID) -> schemas.SessionMessageShow:
+        session_message_db = models.SessionMessage.get(id=session_message_id)
+        session_message_db.sent = True
+        return schemas.SessionMessageShow.model_validate(session_message_db)
+
 
 class Department:
     @staticmethod

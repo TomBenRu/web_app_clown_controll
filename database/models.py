@@ -68,14 +68,12 @@ class SessionMessage(db_clown_control.Entity):
     message = Required(str)
     sent = Optional(datetime.datetime)
     team_of_actors = Required(TeamOfActors)
-    department = Optional('Department')
 
 
 class Department(User):
     name = Required(str, 50)
     descriptive_name = Required(str, 50)
     location = Required(Location)
-    session_messages = Set(SessionMessage)
 
     composite_key(name, location)
 
