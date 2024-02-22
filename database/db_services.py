@@ -134,9 +134,9 @@ class Actor:
         team_of_actors_db = models.TeamOfActors.get(id=team_of_actors_id)
         print(f'................................ {team_of_actors_db=}', flush=True)
         if unsent:
+            print('............................ in unsent')
             session_messages_db = (models.SessionMessage
-                                   .select(team_of_actors=team_of_actors_db, sent=False)
-                                   .order_by(lambda sm: sm.created_at))
+                                   .select(team_of_actors=team_of_actors_db, sent=False))
             print(f'.................................{session_messages_db=}', flush=True)
         else:
             session_messages_db = (models.SessionMessage
