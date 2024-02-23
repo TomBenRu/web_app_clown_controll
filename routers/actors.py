@@ -57,4 +57,4 @@ def delete_team(team_of_actor_id: str, token_data: schemas.TokenData = Depends(v
 @router.get('/session_messages', dependencies=[Depends(verify_access_token__actor)])
 def get_session_messages(team_of_actors_id: UUID):
     return [schemas.SessionMessageShow.model_validate(sm)
-            for sm in db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id)]
+            for sm in db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, False)]
