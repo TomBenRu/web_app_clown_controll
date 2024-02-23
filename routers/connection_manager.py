@@ -183,6 +183,7 @@ class MessageHandler:
 
     @staticmethod
     def handle_send_confirmation(confirmation: dict):
+        print(f'in handle_send_confirmation...................... {confirmation=}')
         db_services.Actor.set_session_message_as_sent(UUID(confirmation['message_id']))
 
     @staticmethod
