@@ -29,9 +29,11 @@ class ConnectionManager:
         else:
             # bei schnellen Verbindungsabbrüchen und -wiederherstellungen können Verdoppelungen auftreten,
             # daher wird hier geprüft, ob die Verbindung mit team_of_actors_id bereits vorhanden ist
+            connections_to_remove = set()
             for con in self.active_clowns_teams_connections[location_id]:
                 if con.headers.get("team_of_actors_id") == websocket.headers.get("team_of_actors_id"):
-                    self.active_clowns_teams_connections[location_id].remove(con)
+                    connections_to_remove.add(con)
+            self.active_clowns_teams_connections[location_id] -= connections_to_remove
             self.active_clowns_teams_connections[location_id].add(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
                 self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
