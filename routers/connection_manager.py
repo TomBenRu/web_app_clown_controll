@@ -104,9 +104,16 @@ class ConnectionManager:
             print(f'....................................... send to {ws=}', flush=True)
             await ws.send_text(message)
 
-    async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str, location_id: UUID):
+    async def send_alert_to_clown_teams(self, websocket: WebSocket, message: dict, location_id: UUID):
         for ws in self.active_clowns_teams_connections[location_id]:
-            await ws.send_text(message)
+            message_id = str(uuid.uuid4())
+            message_with_id = json.dumps(message | {'message_id': message_id})
+            print(f'in broadcast_clowns_teams()............................ {message_with_id=}', flush=True)
+            db_services.Actor.create_session_message(
+                schemas.SessionMessageCreate(message=message_with_id,
+                                             sent=None,
+                                             team_of_actors_id=UUID(ws.headers.get("team_of_actors_id"))))
+            await ws.send_text(message_with_id)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
                                                                    message_id: str, time: str, reconnect: bool):
@@ -203,8 +210,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = json.dumps({'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(now), 'message_id': str(uuid.uuid4())})
+            message = {'department_id': str(token_data.id), 'joined': True, 'time': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
