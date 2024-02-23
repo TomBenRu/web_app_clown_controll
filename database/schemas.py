@@ -150,6 +150,7 @@ class TeamOfActorsShow(TeamOfActors):
 
 
 class SessionMessageCreate(BaseModel):
+    id: UUID
     message: str
     sent: Optional[datetime.datetime] = None
     team_of_actors_id: UUID

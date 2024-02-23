@@ -79,6 +79,14 @@ class ConnectionManager:
 
     async def send_personal_clowns_team_message(self, message: str, websocket: WebSocket):
         print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! send_personal_clowns_team_message {message=}', flush=True)
+        message_dict = json.loads(message)
+        message_id = uuid.uuid4()
+        message_dict['message_id'] = message_id
+        db_services.Actor.create_session_message(
+            schemas.SessionMessageCreate(
+                id=message_id, message=message, team_of_actors_id=UUID(websocket.headers.get('team_of_actors_id'))
+            )
+        )
         await websocket.send_text(message)
 
     async def broadcast_departments(self, message: str, original_websocket: WebSocket, location_id: UUID, receiver_id: str | None):
