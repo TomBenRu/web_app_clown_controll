@@ -159,7 +159,9 @@ class Actor:
     @staticmethod
     @db_session
     def set_session_message_as_sent(session_message_id: UUID) -> schemas.SessionMessageShow:
+        print(f'in set_session_message_as_sent..................{session_message_id=}')
         session_message_db = models.SessionMessage.get(id=session_message_id)
+        print(f'.......................... {session_message_db}')
         session_message_db.sent = datetime.datetime.now(datetime.timezone.utc)
         return schemas.SessionMessageShow.model_validate(session_message_db)
 
