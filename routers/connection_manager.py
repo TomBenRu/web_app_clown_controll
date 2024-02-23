@@ -23,9 +23,6 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         print('............................. in connect', flush=True)
-        print(f'........................... {dict(self.active_department_connections)=}', flush=True)
-        print(f'........................... {dict(self.active_clowns_teams_connections)=}', flush=True)
-        print(f'........................... {dict(self.disconnected_clowns_teams)=}', flush=True)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].add(websocket)
@@ -44,6 +41,9 @@ class ConnectionManager:
                     del self.disconnected_clowns_teams[location_id]
 
             await self.send_pending_clowns_team_messages(websocket)
+        print(f'........................... {dict(self.active_department_connections)=}', flush=True)
+        print(f'........................... {dict(self.active_clowns_teams_connections)=}', flush=True)
+        print(f'........................... {dict(self.disconnected_clowns_teams)=}', flush=True)
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         print(f'in manager.disconnect().......................... {websocket=}, {department=}, {connection_lost=}',
