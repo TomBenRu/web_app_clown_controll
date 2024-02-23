@@ -84,7 +84,7 @@ class ConnectionManager:
         for connection in self.active_clowns_teams_connections[location_id]:
             message_id = str(uuid.uuid4())
             message_with_id = json.dumps(message | {'message_id': message_id})
-            print(f'in broadcast_clowns_teams()............................ {message_with_id=}')
+            print(f'in broadcast_clowns_teams()............................ {message_with_id=}', flush=True)
             db_services.Actor.create_session_message(
                 schemas.SessionMessageCreate(message=message_with_id,
                                              sent=None,
