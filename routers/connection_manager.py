@@ -43,6 +43,8 @@ class ConnectionManager:
             await self.send_pending_clowns_team_messages(websocket)
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
+        print(f'in manager.disconnect().......................... {websocket=}, {department=}, {connection_lost=}',
+              flush=True)
         if department:
             self.active_department_connections[location_id].remove(websocket)
         else:
