@@ -47,6 +47,7 @@ class ConnectionManager:
               flush=True)
         if department:
             self.active_department_connections[location_id].remove(websocket)
+            print(f'.................................................{self.active_department_connections=}')
         else:
             if websocket in self.active_clowns_teams_connections[location_id]:  # kann schon in connect() entfernt worden sein
                 self.active_clowns_teams_connections[location_id].remove(websocket)
