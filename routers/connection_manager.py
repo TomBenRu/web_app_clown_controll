@@ -160,6 +160,7 @@ class MessageHandler:
     async def handle_message(data: str, websocket: WebSocket, token_data: schemas.TokenData,
                              team_of_actors: schemas.TeamOfActorsShow | None, location_id: UUID,
                              receiver_id: str | None, closing: bool = False):
+        print('..................................in MessageHandler.handle_message', flush=True)
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
 
         if 'department' in token_data.authorizations:
@@ -176,6 +177,7 @@ class MessageHandler:
                 time=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
+            print(f'................................... {alert_message_rsv=}', flush=True)
             message_personal = {'send_confirmation': data, 'time': str(now),
                                 'sender_id': websocket.headers.get('team_of_actors_id'),
                                 'receiver_id': receiver_id}
