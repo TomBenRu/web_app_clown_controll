@@ -1,4 +1,5 @@
 import datetime
+import json
 import sys
 from typing import Annotated, Any
 from uuid import UUID
@@ -150,8 +151,9 @@ class Actor:
     @db_session
     def create_session_message(session_message: schemas.SessionMessageCreate) -> schemas.SessionMessageShow:
         team_of_actors_db = models.TeamOfActors.get(id=session_message.team_of_actors_id)
-        department_db = models.TeamOfActors.get(id=session_message.team_of_actors_id)
-        session_message_db = models.SessionMessage(team_of_actors=team_of_actors_db,
+        message_id = UUID(json.loads(session_message.message)['message_id'])
+        session_message_db = models.SessionMessage(id=message_id,
+                                                   team_of_actors=team_of_actors_db,
                                                    message=session_message.message,
                                                    sent=None)
         return schemas.SessionMessageShow.model_validate(session_message_db)

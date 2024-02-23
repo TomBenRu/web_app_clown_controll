@@ -106,7 +106,8 @@ class ConnectionManager:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
             message = json.dumps({'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(datetime.datetime.now()), 'reconnect': reconnect})
+                                  'time': str(datetime.datetime.now()), 'reconnect': reconnect,
+                                  'message_id': message_id})
             db_services.Actor.create_session_message(
                 schemas.SessionMessageCreate(message=message,
                                              sent=None,
