@@ -89,9 +89,9 @@ class ConnectionManager:
             await connection.send_text(message)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
-        print('..................................... in send_alert_to_departments')
+        print('..................................... in send_alert_to_departments', flush=True)
         for ws in self.active_department_connections[location_id]:
-            print(f'....................................... send to {ws=}')
+            print(f'....................................... send to {ws=}', flush=True)
             await ws.send_text(message)
 
     async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str, location_id: UUID):
