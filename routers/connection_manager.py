@@ -57,6 +57,7 @@ class ConnectionManager:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
     async def send_pending_clowns_team_messages(self, websocket: WebSocket):
+        return
         print('in send_pending_clowns_team_messages', flush=True)
         team_of_actors_id = UUID(websocket.headers.get('team_of_actors_id'))
         pending_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, True)
