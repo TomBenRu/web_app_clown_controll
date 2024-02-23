@@ -160,13 +160,16 @@ class Actor:
 
     @staticmethod
     @db_session
-    def set_session_message_as_sent(session_message_id: UUID) -> schemas.SessionMessageShow:
+    def set_session_message_as_sent(session_message_id: UUID) -> schemas.SessionMessageShow | None:
         print(f'in set_session_message_as_sent..................{session_message_id=}', flush=True)
         session_message_db = models.SessionMessage.get_for_update(id=session_message_id)
         print(f'.......................... {session_message_db=}', flush=True)
-        session_message_db.sent = datetime.datetime.now(datetime.timezone.utc)
-        print(f'.......................... {session_message_db.to_dict()=}', flush=True)
-        return schemas.SessionMessageShow.model_validate(session_message_db)
+        if session_message_db:
+            session_message_db.sent = datetime.datetime.now(datetime.timezone.utc)
+            print(f'.......................... {session_message_db.to_dict()=}', flush=True)
+        else:
+            print('............................. keine entsprechende Message in db')
+        return schemas.SessionMessageShow.model_validate(session_message_db) if session_message_db else None
 
 
 class Department:
