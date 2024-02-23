@@ -174,9 +174,9 @@ class MessageHandler:
                 time=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
-            message_personal = json.dumps({'send_confirmation': data, 'time': str(now),
-                                           'sender_id': websocket.headers.get('team_of_actors_id'),
-                                           'receiver_id': receiver_id, 'message_id': str(uuid.uuid4())})
+            message_personal = {'send_confirmation': data, 'time': str(now),
+                                'sender_id': websocket.headers.get('team_of_actors_id'),
+                                'receiver_id': receiver_id}
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id, receiver_id)
             await manager.broadcast_departments(message_broadcast, websocket, location_id, receiver_id)
             if not closing:
