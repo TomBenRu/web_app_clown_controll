@@ -23,9 +23,9 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         print('............................. in connect', flush=True)
-        print(f'........................... {dict(self.active_department_connections)=}')
-        print(f'........................... {dict(self.active_clowns_teams_connections)=}')
-        print(f'........................... {dict(self.disconnected_clowns_teams)=}')
+        print(f'........................... {dict(self.active_department_connections)=}', flush=True)
+        print(f'........................... {dict(self.active_clowns_teams_connections)=}', flush=True)
+        print(f'........................... {dict(self.disconnected_clowns_teams)=}', flush=True)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].add(websocket)
