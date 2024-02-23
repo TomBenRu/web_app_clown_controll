@@ -52,5 +52,5 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
     except WebSocketDisconnect as e:
-        print(f'........................................ {WebSocketDisconnect}, Exception: {e}', flush=True)
+        print(f'........................................ WebSocketDisconnect, Exception: {e}', flush=True)
         await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, True)
