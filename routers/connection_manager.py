@@ -58,6 +58,9 @@ class ConnectionManager:
                 self.disconnected_clowns_teams[location_id].add(websocket.headers.get("team_of_actors_id"))
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
+        print(f'........................... {dict(self.active_department_connections)=}', flush=True)
+        print(f'........................... {dict(self.active_clowns_teams_connections)=}', flush=True)
+        print(f'........................... {dict(self.disconnected_clowns_teams)=}', flush=True)
 
     async def send_pending_clowns_team_messages(self, websocket: WebSocket):
         return
