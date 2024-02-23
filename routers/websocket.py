@@ -27,7 +27,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             team_of_actors = db_services.Actor.get_team_of_actors(UUID(team_of_actors_id))
             location_id = team_of_actors.location.id
         except Exception as e:
-            print(f'Fehler: {e}')
+            print(f'Fehler: {e}', flush=True)
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
             return
 
@@ -38,7 +38,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             data_dict = json.loads(data)
             message = data_dict.get('chat-message', '')
             receiver_id = data_dict.get('receiver_id')
-            print(f'..........................{data_dict=}')
+            print(f'..........................{data_dict=}', flush=True)
             if data_dict.get('closing'):
                 print('...........................closing')  # todo: delete clowns_team from database, delete pending messages to clowns_team, delete ws from active_clowns_teams_connections
                 await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, False)

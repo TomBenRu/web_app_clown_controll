@@ -80,13 +80,16 @@ class ConnectionManager:
             else:
                 await ws.send_text(message)
 
-    async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
+    async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
+            message_id = str(uuid.uuid4())
+            message_with_id = json.dumps(message | {'message_id': message_id})
+            print(f'in broadcast_clowns_teams()............................ {message_with_id=}')
             db_services.Actor.create_session_message(
-                schemas.SessionMessageCreate(message=message,
+                schemas.SessionMessageCreate(message=message_with_id,
                                              sent=None,
                                              team_of_actors_id=UUID(connection.headers.get("team_of_actors_id"))))
-            await connection.send_text(message)
+            await connection.send_text(message_with_id)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
         print('..................................... in send_alert_to_departments', flush=True)
@@ -158,8 +161,7 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
 
         if 'department' in token_data.authorizations:
-            message_broadcast = json.dumps({'department_id': str(token_data.id), 'message': data,
-                                            'time': str(now), 'message_id': str(uuid.uuid4())})
+            message_broadcast = {'department_id': str(token_data.id), 'message': data, 'time': str(now)}
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
                 time=now.strftime('%H:%M:%S'), message=data)
