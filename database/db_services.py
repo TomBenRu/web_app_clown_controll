@@ -150,9 +150,8 @@ class Actor:
     @db_session
     def create_session_message(session_message: schemas.SessionMessageCreate) -> schemas.SessionMessageShow:
         team_of_actors_db = models.TeamOfActors.get(id=session_message.team_of_actors_id)
-        department_db = models.Department.get(id=session_message.department_id)
+        department_db = models.TeamOfActors.get(id=session_message.team_of_actors_id)
         session_message_db = models.SessionMessage(team_of_actors=team_of_actors_db,
-                                                   department=department_db,
                                                    message=session_message.message,
                                                    sent=None)
         return schemas.SessionMessageShow.model_validate(session_message_db)
