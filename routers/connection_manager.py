@@ -162,7 +162,7 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
 def team_of_actors_is_offline(team_of_actors_id: UUID) -> bool:
     team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(team_of_actors_id).actors]
     print(f'in team_of_actors_is_offline() ................................... {team_of_actors=}', flush=True)
-    return db_services.Actor.get_team_of_actors(team_of_actors_id) is not None
+    return not db_services.Actor.get_team_of_actors(team_of_actors_id).session_messages
 
 
 class MessageHandler:
