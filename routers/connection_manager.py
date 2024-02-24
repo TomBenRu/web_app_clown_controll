@@ -19,7 +19,7 @@ class ConnectionManager:
     def __init__(self):
         self.active_department_connections: defaultdict[UUID, set] = defaultdict(set)
         self.active_clowns_teams_connections: defaultdict[UUID, set] = defaultdict(set)
-        self.disconnected_clowns_teams: defaultdict[UUID, defaultdict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+        self.disconnected_clowns_teams: defaultdict[UUID, set[str]] = defaultdict(set)
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         teams_of_actors_db = db_services.Actor.get_all_teams_of_actors(location_id)
@@ -40,16 +40,9 @@ class ConnectionManager:
                     self.active_clowns_teams_connections[location_id].remove(con)
             self.active_clowns_teams_connections[location_id].add(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
-                for message in self.disconnected_clowns_teams[location_id][t_of_a_id]:
-                    await websocket.send_text(message)
-                del self.disconnected_clowns_teams[location_id][t_of_a_id]
+                self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
-            disconnected_clowns_teams = {key: dict(val) for key, val in dict(self.disconnected_clowns_teams).items()}
-            connected_clowns_teams = {key: [w.headers.get('team_of_actors_id') for w in val]
-                                      for key, val in self.active_clowns_teams_connections.items()}
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {disconnected_clowns_teams=}', flush=True)
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {connected_clowns_teams=}', flush=True)
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if websocket.headers.get("team_of_actors_id"):
@@ -64,15 +57,9 @@ class ConnectionManager:
             if websocket in self.active_clowns_teams_connections[location_id]:  # kann schon in connect() entfernt worden sein
                 self.active_clowns_teams_connections[location_id].remove(websocket)
             if connection_lost:
-                # self.disconnected_clowns_teams[location_id].append(websocket.headers.get("team_of_actors_id"))
-                self.disconnected_clowns_teams[location_id][websocket.headers.get("team_of_actors_id")] = []
+                self.disconnected_clowns_teams[location_id].add(websocket.headers.get("team_of_actors_id"))
             else:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
-            disconnected_clowns_teams = {key: dict(val) for key, val in dict(self.disconnected_clowns_teams).items()}
-            connected_clowns_teams = {key: [w.headers.get('team_of_actors_id') for w in val]
-                                      for key, val in self.active_clowns_teams_connections.items()}
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {disconnected_clowns_teams=}', flush=True)
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! {connected_clowns_teams=}', flush=True)
 
     async def send_personal_department_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
@@ -115,9 +102,6 @@ class ConnectionManager:
             print(f'................. saved_broadcast-message_to_db: {message_with_id=}', flush=True)
 
             await connection.send_text(message_with_id)
-        for messages in self.disconnected_clowns_teams[location_id].values():
-            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
-            messages.append(message_with_id)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
         print(f'{websocket.headers=}')
@@ -148,6 +132,7 @@ manager = ConnectionManager()
 
 
 def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
+    # sourcery skip: use-named-expression
     teams_online = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
                      for ws in manager.active_clowns_teams_connections[location_id]])
     if teams_online:
@@ -156,11 +141,11 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     else:
         text_teams_online = ''
 
-    # Falls die Remote-App on ausloggen geschlossen wurde,
+    # Falls die Remote-App mit ausloggen geschlossen wurde,
     # kann durch erneutes Einloggen in der Location der Team-Status zurückgesetzt werden:
     if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
-        disconnected_team_ids = defaultdict(list, {team_id: val for team_id, val in disconnected_team_ids.items()
-                                                   if db_services.Actor.get_team_of_actors(UUID(team_id))})
+        disconnected_team_ids = {team_id for team_id in disconnected_team_ids
+                                 if db_services.Actor.get_team_of_actors(UUID(team_id))}
         if not disconnected_team_ids:
             del manager.disconnected_clowns_teams[location_id]
 
