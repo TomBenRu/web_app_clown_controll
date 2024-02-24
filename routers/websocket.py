@@ -47,6 +47,7 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
                 return
             if data_dict.get('confirmation_of_receipt'):
                 print(f'..................................confirmation_of_receipt: {data_dict}')
+                return
             await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                 receiver_id)
     except WebSocketDisconnect as e:  # todo:
