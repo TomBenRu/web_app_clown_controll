@@ -87,6 +87,7 @@ class ConnectionManager:
         return message_id, json.dumps(message_curr)
 
     def save_message_to_db(self, message_with_id: str, message_id: UUID, team_of_actors_id: UUID):
+        print(f'in save_message_to_db()................. {message_id=}, {team_of_actors_id=}\n{message_with_id=}', flush=True)
         db_services.Actor.create_session_message(
             schemas.SessionMessageCreate(
                 id=message_id, message=message_with_id,
