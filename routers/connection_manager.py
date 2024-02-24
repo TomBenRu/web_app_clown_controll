@@ -98,16 +98,21 @@ class ConnectionManager:
         message_curr['message_id'] = str(message_id)
         return message_id, json.dumps(message_curr)
 
+    def save_message_to_db(self, message_with_id: str, message_id: UUID, websocket: WebSocket):
+        db_services.Actor.create_session_message(
+            schemas.SessionMessageCreate(
+                id=message_id, message=message_with_id,
+                team_of_actors_id=UUID(websocket.headers.get('team_of_actors_id'))
+            )
+        )
+
     async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! broadcast_clowns_teams {message=}', flush=True)
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
 
-            db_services.Actor.create_session_message(
-                schemas.SessionMessageCreate(
-                    id=message_id, message=message_with_id, team_of_actors_id=UUID(connection.headers.get('team_of_actors_id'))
-                )
-            )
+            self.save_message_to_db(message_with_id, message_id, connection)
+
             await connection.send_text(message_with_id)
         for messages in self.disconnected_clowns_teams[location_id].values():
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
@@ -119,8 +124,10 @@ class ConnectionManager:
             print(f'{ws.headers=}')
             await ws.send_text(message)
 
-    async def send_alert_to_clown_teams(self, websocket: WebSocket, message: str, location_id: UUID):
+    async def send_alert_to_clown_teams(self, websocket: WebSocket, message: dict, location_id: UUID):
         for ws in self.active_clowns_teams_connections[location_id]:
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+            self.save_message_to_db(message_with_id, message_id, ws)
             await ws.send_text(message)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
@@ -205,8 +212,8 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = json.dumps({'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(now), 'message_id': str(uuid.uuid4())})
+            message = {'department_id': str(token_data.id), 'joined': True,
+                                  'time': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
@@ -242,8 +249,8 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             manager.disconnect(websocket, True, location_id, False)
-            message = json.dumps({'department_id': str(token_data.id), 'left': True,
-                                  'time': str(now), 'message_id': str(uuid.uuid4())})
+            message = {'department_id': str(token_data.id), 'left': True,
+                                  'time': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
         else:
             manager.disconnect(websocket, False, location_id, connection_lost)
