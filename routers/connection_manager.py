@@ -92,20 +92,26 @@ class ConnectionManager:
             else:
                 await ws.send_text(message)
 
-    async def broadcast_clowns_teams(self, message: str, original_websocket: WebSocket, location_id: UUID):
+    def add_message_id_to_message_and_dumps(self, message: dict) -> tuple[UUID, str]:
+        message_curr = message.copy()
+        message_id = uuid.uuid4()
+        message_curr['message_id'] = message_id
+        return message_id, json.dumps(message_curr)
+
+    async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
         for connection in self.active_clowns_teams_connections[location_id]:
             print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! broadcast_clowns_teams {message=}', flush=True)
-            message_dict = json.loads(message)
-            message_id = uuid.uuid4()
-            message_dict['message_id'] = message_id
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+
             db_services.Actor.create_session_message(
                 schemas.SessionMessageCreate(
-                    id=message_id, message=message, team_of_actors_id=UUID(connection.headers.get('team_of_actors_id'))
+                    id=message_id, message=message_with_id, team_of_actors_id=UUID(connection.headers.get('team_of_actors_id'))
                 )
             )
-            await connection.send_text(message)
+            await connection.send_text(message_with_id)
         for messages in self.disconnected_clowns_teams[location_id].values():
-            messages.append(message)
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+            messages.append(message_with_id)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
         print(f'{websocket.headers=}')
@@ -169,8 +175,8 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message_broadcast = json.dumps({'department_id': str(token_data.id), 'message': data,
-                                            'time': str(now), 'message_id': str(uuid.uuid4())})
+            message_broadcast = {'department_id': str(token_data.id), 'message': data,
+                                            'time': str(now)}
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
                 time=now.strftime('%H:%M:%S'), message=data)
@@ -183,9 +189,9 @@ class MessageHandler:
                 time=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
-            message_personal = json.dumps({'send_confirmation': data, 'time': str(now),
+            message_personal = {'send_confirmation': data, 'time': str(now),
                                            'sender_id': websocket.headers.get('team_of_actors_id'),
-                                           'receiver_id': receiver_id, 'message_id': str(uuid.uuid4())})
+                                           'receiver_id': receiver_id}
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id, receiver_id)
             await manager.broadcast_departments(message_broadcast, websocket, location_id, receiver_id)
             if not closing:
