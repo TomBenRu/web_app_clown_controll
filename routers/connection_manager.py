@@ -207,6 +207,7 @@ class MessageHandler:
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
             await manager.send_personal_department_message(note_presence, websocket)
         else:
+            reconnect = team_of_actors_is_offline(team_of_actors.id)
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
 
@@ -214,7 +215,6 @@ class MessageHandler:
                                       .render(team=f'Clowns-Team: {actors}'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            reconnect = team_of_actors_is_offline(team_of_actors.id)
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
                                                                                location_id,
                                                                                str(now),
