@@ -95,7 +95,7 @@ class ConnectionManager:
     def add_message_id_to_message_and_dumps(self, message: dict) -> tuple[UUID, str]:
         message_curr = message.copy()
         message_id = uuid.uuid4()
-        message_curr['message_id'] = message_id
+        message_curr['message_id'] = str(message_id)
         return message_id, json.dumps(message_curr)
 
     async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
