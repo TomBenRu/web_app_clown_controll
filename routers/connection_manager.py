@@ -133,13 +133,15 @@ class ConnectionManager:
             await ws.send_text(message_with_id)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
-                                                                   message_id: str, time: str, reconnect: bool):
+                                                                   time_now: str, reconnect: bool):
         for ws in self.active_department_connections[location_id]:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
-            message = json.dumps({'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(datetime.datetime.now()), 'reconnect': reconnect})
-            await websocket.send_text(message)
+            message = {'department_id': str(token_data.id), 'joined': True,
+                       'time': time_now, 'reconnect': reconnect}
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+            self.save_message_to_db(message_with_id, message_id, websocket)
+            await websocket.send_text(message_with_id)
 
 
 manager = ConnectionManager()
@@ -233,7 +235,6 @@ class MessageHandler:
             reconnect = True if clowns_team_offline else False
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
                                                                                location_id,
-                                                                               str(uuid.uuid4()),
                                                                                str(now),
                                                                                reconnect)
             
