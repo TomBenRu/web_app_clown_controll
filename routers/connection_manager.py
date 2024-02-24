@@ -23,16 +23,11 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         teams_of_actors_db = db_services.Actor.get_all_teams_of_actors(location_id)
-        print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect: teams of actors in DB = '
-              f'{[(t.id, [a.artist_name for a in t.actors]) for t in teams_of_actors_db]}', flush=True)
-        if websocket.headers.get("team_of_actors_id"):
-            team_of_actors_id = websocket.headers.get("team_of_actors_id")
-            team_of_actors = [a.artist_name for a in db_services.Actor.get_team_of_actors(UUID(team_of_actors_id)).actors]
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! connect {team_of_actors}, {team_of_actors_id=}', flush=True)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].add(websocket)
         else:
+            team_of_actors_id = websocket.headers.get("team_of_actors_id")
             # bei schnellen Verbindungsabbrüchen und -wiederherstellungen können Verdoppelungen auftreten,
             # daher wird hier geprüft, ob die Verbindung mit team_of_actors_id bereits vorhanden ist
             for con in self.active_clowns_teams_connections[location_id]:
@@ -40,12 +35,13 @@ class ConnectionManager:
                     self.active_clowns_teams_connections[location_id].remove(con)
                     break
             self.active_clowns_teams_connections[location_id].add(websocket)
-            if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
-                self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
-                if not self.disconnected_clowns_teams[location_id]:
-                    del self.disconnected_clowns_teams[location_id]
+            # if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
+            #     self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
+            #     if not self.disconnected_clowns_teams[location_id]:
+            #         del self.disconnected_clowns_teams[location_id]
 
-            unsent_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(UUID(t_of_a_id), True)
+            unsent_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(UUID(team_of_actors_id),
+                                                                                           True)
             for session_message in unsent_messages:
                 await websocket.send_text(session_message.message)
 
@@ -61,8 +57,8 @@ class ConnectionManager:
         else:
             if websocket in self.active_clowns_teams_connections[location_id]:  # kann schon in connect() entfernt worden sein
                 self.active_clowns_teams_connections[location_id].remove(websocket)
-                if connection_lost:
-                    self.disconnected_clowns_teams[location_id].add(websocket.headers.get("team_of_actors_id"))
+                # if connection_lost:
+                #     self.disconnected_clowns_teams[location_id].add(websocket.headers.get("team_of_actors_id"))
             if not connection_lost:
                 cmd_actor.DeleteTeamOfActors(UUID(websocket.headers.get("team_of_actors_id"))).execute()
 
@@ -163,33 +159,8 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     return text_teams_online, text_teams_offline
 
 
-
-
-    teams_online = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
-                     for ws in manager.active_clowns_teams_connections[location_id]])
-
-
-
-    # Falls die Remote-App mit ausloggen geschlossen wurde,
-    # kann durch erneutes Einloggen in der Location der Team-Status zurückgesetzt werden:
-    if disconnected_team_ids := manager.disconnected_clowns_teams[location_id]:
-        disconnected_team_ids = {team_id for team_id in disconnected_team_ids
-                                 if db_services.Actor.get_team_of_actors(UUID(team_id))}
-        if not disconnected_team_ids:
-            del manager.disconnected_clowns_teams[location_id]
-
-    if disconnected_team_ids:
-        disconnected_clowns_teams = [db_services.Actor.get_team_of_actors(UUID(team_id))
-                                     for team_id in manager.disconnected_clowns_teams[location_id]]
-        text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
-                                         for t in disconnected_clowns_teams]) + ' (offline)'
-    else:
-        text_teams_offline = ''
-
-    if not text_teams_online and not text_teams_offline:
-        text_teams_offline = 'Kein Clowns-Team.'
-
-    return text_teams_online, text_teams_offline
+def team_of_actors_is_offline(team_of_actors_id: UUID) -> bool:
+    return db_services.Actor.get_team_of_actors(team_of_actors_id) is not None
 
 
 class MessageHandler:
@@ -236,8 +207,6 @@ class MessageHandler:
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
             await manager.send_personal_department_message(note_presence, websocket)
         else:
-            clowns_team_offline = (websocket.headers.get('team_of_actors_id')
-                                   in manager.disconnected_clowns_teams[location_id])
             await manager.connect(websocket, False, location_id)
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
 
@@ -245,7 +214,7 @@ class MessageHandler:
                                       .render(team=f'Clowns-Team: {actors}'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
-            reconnect = True if clowns_team_offline else False
+            reconnect = team_of_actors_is_offline(team_of_actors.id)
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
                                                                                location_id,
                                                                                str(now),
