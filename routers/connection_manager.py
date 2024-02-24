@@ -38,11 +38,16 @@ class ConnectionManager:
             for con in self.active_clowns_teams_connections[location_id]:
                 if con.headers.get("team_of_actors_id") == websocket.headers.get("team_of_actors_id"):
                     self.active_clowns_teams_connections[location_id].remove(con)
+                    break
             self.active_clowns_teams_connections[location_id].add(websocket)
             if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
                 self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
                 if not self.disconnected_clowns_teams[location_id]:
                     del self.disconnected_clowns_teams[location_id]
+
+            unsent_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(UUID(t_of_a_id), True)
+            for session_message in unsent_messages:
+                await websocket.send_text(session_message.message)
 
     def disconnect(self, websocket: WebSocket, department: bool, location_id: UUID, connection_lost: bool):
         if websocket.headers.get("team_of_actors_id"):
