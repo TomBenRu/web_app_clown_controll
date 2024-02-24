@@ -130,7 +130,7 @@ class ConnectionManager:
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
             self.save_message_to_db(message_with_id, message_id, ws)
             print(f'................. saved_alert_to_db: {message_with_id=}', flush=True)
-            await ws.send_text(message)
+            await ws.send_text(message_with_id)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
                                                                    message_id: str, time: str, reconnect: bool):
@@ -214,8 +214,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = {'department_id': str(token_data.id), 'joined': True,
-                                  'time': str(now)}
+            message = {'department_id': str(token_data.id), 'joined': True, 'time': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
