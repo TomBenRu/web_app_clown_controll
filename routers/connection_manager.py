@@ -186,8 +186,7 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message_broadcast = {'department_id': str(token_data.id), 'message': data,
-                                            'time': str(now)}
+            message_broadcast = {'department_id': str(token_data.id), 'message': data, 'time': str(now)}
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
                 time=now.strftime('%H:%M:%S'), message=data)
@@ -270,3 +269,10 @@ class MessageHandler:
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
                              .render(text_teams_online=text_teams_online, text_teams_offline=text_teams_offline))
             await manager.broadcast_departments(note_presence, websocket, location_id, None)
+
+    @staticmethod
+    def handle_confirmation_of_receipt(message: dict):
+        try:
+            db_services.Actor.set_session_message_as_sent(UUID(message['message_id']))
+        except Exception as e:
+            print(f'................................ Fehler in handle_confirmation_of_receipt(): {e=}')
