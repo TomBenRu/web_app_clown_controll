@@ -166,7 +166,7 @@ def team_of_actors_is_offline(team_of_actors_id: UUID) -> bool:
 
     print(f'in team_of_actors_is_offline() ................................... {team_of_actors_names=}', flush=True)
     print(f'in team_of_actors_is_offline() ................................... {team_of_actors_messages=}', flush=True)
-    return not db_services.Actor.get_team_of_actors(team_of_actors_id).session_messages
+    return bool(db_services.Actor.get_team_of_actors(team_of_actors_id).session_messages)
 
 
 class MessageHandler:
