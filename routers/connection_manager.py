@@ -112,6 +112,7 @@ class ConnectionManager:
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
 
             self.save_message_to_db(message_with_id, message_id, connection)
+            print(f'................. saved_broadcast-message_to_db: {message_with_id=}', flush=True)
 
             await connection.send_text(message_with_id)
         for messages in self.disconnected_clowns_teams[location_id].values():
@@ -128,6 +129,7 @@ class ConnectionManager:
         for ws in self.active_clowns_teams_connections[location_id]:
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
             self.save_message_to_db(message_with_id, message_id, ws)
+            print(f'................. saved_alert_to_db: {message_with_id=}', flush=True)
             await ws.send_text(message)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
