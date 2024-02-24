@@ -133,7 +133,8 @@ class ConnectionManager:
             message = {'department_id': str(token_data.id), 'joined': True,
                        'time': time_now, 'reconnect': reconnect}
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
-            self.save_message_to_db(message_with_id, message_id, websocket)
+            self.save_message_to_db(message_with_id, message_id,
+                                    UUID(websocket.headers.get('team_of_actors_id')))
             await websocket.send_text(message_with_id)
 
 
