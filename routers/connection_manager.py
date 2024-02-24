@@ -17,9 +17,9 @@ templates = Jinja2Templates('templates')
 
 class ConnectionManager:
     def __init__(self):
-        self.active_department_connections: defaultdict[UUID, set] = defaultdict(set)
-        self.active_clowns_teams_connections: defaultdict[UUID, set] = defaultdict(set)
-        self.disconnected_clowns_teams: defaultdict[UUID, set[str]] = defaultdict(set)
+        self.active_department_connections: defaultdict[UUID, set[WebSocket]] = defaultdict(set)
+        self.active_clowns_teams_connections: defaultdict[UUID, set[WebSocket]] = defaultdict(set)
+        # self.disconnected_clowns_teams: defaultdict[UUID, set[str]] = defaultdict(set)
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
         teams_of_actors_db = db_services.Actor.get_all_teams_of_actors(location_id)
@@ -86,36 +86,43 @@ class ConnectionManager:
         message_curr['message_id'] = str(message_id)
         return message_id, json.dumps(message_curr)
 
-    def save_message_to_db(self, message_with_id: str, message_id: UUID, websocket: WebSocket):
+    def save_message_to_db(self, message_with_id: str, message_id: UUID, team_of_actors_id: UUID):
         db_services.Actor.create_session_message(
             schemas.SessionMessageCreate(
                 id=message_id, message=message_with_id,
-                team_of_actors_id=UUID(websocket.headers.get('team_of_actors_id'))
+                team_of_actors_id=team_of_actors_id
             )
         )
 
     async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
-        for connection in self.active_clowns_teams_connections[location_id]:
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!! broadcast_clowns_teams {message=}', flush=True)
+        teams_of_actors_db_ids = {t.id for t in db_services.Actor.get_all_teams_of_actors(location_id)}
+        for ws in self.active_clowns_teams_connections[location_id]:
+            team_of_actors_id = UUID(ws.headers.get('team_of_actors_id'))
+            teams_of_actors_db_ids.remove(team_of_actors_id)
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
 
-            self.save_message_to_db(message_with_id, message_id, connection)
-            print(f'................. saved_broadcast-message_to_db: {message_with_id=}', flush=True)
-
-            await connection.send_text(message_with_id)
+            self.save_message_to_db(message_with_id, message_id, team_of_actors_id)
+            await ws.send_text(message_with_id)
+        for team_of_actors_id in teams_of_actors_db_ids:
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+            self.save_message_to_db(message_with_id, message_id, team_of_actors_id)
 
     async def send_alert_to_departments(self, websocket: WebSocket, message: str, location_id: UUID):
-        print(f'{websocket.headers=}')
         for ws in self.active_department_connections[location_id]:
             print(f'{ws.headers=}')
             await ws.send_text(message)
 
     async def send_alert_to_clown_teams(self, websocket: WebSocket, message: dict, location_id: UUID):
+        teams_of_actors_db_ids = {t.id for t in db_services.Actor.get_all_teams_of_actors(location_id)}
         for ws in self.active_clowns_teams_connections[location_id]:
+            team_of_actors_id = UUID(ws.headers.get('team_of_actors_id'))
+            teams_of_actors_db_ids.remove(team_of_actors_id)
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
-            self.save_message_to_db(message_with_id, message_id, ws)
-            print(f'................. saved_alert_to_db: {message_with_id=}', flush=True)
+            self.save_message_to_db(message_with_id, message_id, team_of_actors_id)
             await ws.send_text(message_with_id)
+        for team_of_actors_id in teams_of_actors_db_ids:
+            message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
+            self.save_message_to_db(message_with_id, message_id, team_of_actors_id)
 
     async def send_personal_clowns_team_message_departments_joined(self, websocket: WebSocket, location_id: UUID,
                                                                    time_now: str, reconnect: bool):
@@ -160,12 +167,7 @@ def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
 
 
 def team_of_actors_is_offline(team_of_actors_id: UUID) -> bool:
-    team_of_actors = db_services.Actor.get_team_of_actors(team_of_actors_id)
-    team_of_actors_names = [a.artist_name for a in team_of_actors.actors]
-    team_of_actors_messages = team_of_actors.session_messages
-
-    print(f'in team_of_actors_is_offline() ................................... {team_of_actors_names=}', flush=True)
-    print(f'in team_of_actors_is_offline() ................................... {team_of_actors_messages=}', flush=True)
+    """With first connection there are no session messages"""
     return bool(db_services.Actor.get_team_of_actors(team_of_actors_id).session_messages)
 
 
