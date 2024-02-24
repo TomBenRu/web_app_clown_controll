@@ -138,13 +138,37 @@ manager = ConnectionManager()
 
 def get_text_clowns_teams_online_offline(location_id: UUID) -> tuple[str, str]:
     # sourcery skip: use-named-expression
+
     teams_online = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
                      for ws in manager.active_clowns_teams_connections[location_id]])
+    teams_online_ids = {t.id for t in teams_online}
+    teams_offline_ids = {t.id for t in db_services.Actor.get_all_teams_of_actors(location_id)} - teams_online_ids
+
     if teams_online:
         text_teams_online = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
                                         for t in teams_online]) + ' (online)'
     else:
         text_teams_online = ''
+
+    if teams_offline_ids:
+        teams_offline = [db_services.Actor.get_team_of_actors(team_id) for team_id in teams_offline_ids]
+        text_teams_offline = ' | '.join([f'''Team "{', '.join([a.artist_name for a in t.actors])}"'''
+                                         for t in teams_offline]) + ' (offline)'
+    else:
+        text_teams_offline = ''
+
+    if not text_teams_online and not text_teams_offline:
+        text_teams_offline = 'Kein Clowns-Team.'
+
+    return text_teams_online, text_teams_offline
+
+
+
+
+    teams_online = ([db_services.Actor.get_team_of_actors(UUID(ws.headers['team_of_actors_id']))
+                     for ws in manager.active_clowns_teams_connections[location_id]])
+
+
 
     # Falls die Remote-App mit ausloggen geschlossen wurde,
     # kann durch erneutes Einloggen in der Location der Team-Status zurückgesetzt werden:

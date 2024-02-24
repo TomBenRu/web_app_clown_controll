@@ -123,7 +123,7 @@ class Actor:
 
     @staticmethod
     @db_session
-    def get_all_teams_of_actors(location_id) -> list[schemas.TeamOfActorsShow]:
+    def get_all_teams_of_actors(location_id: UUID) -> list[schemas.TeamOfActorsShow]:
         location_db = models.Location.get(id=location_id)
         teams_db = models.TeamOfActors.select(location=location_db)
         return [schemas.TeamOfActorsShow.model_validate(t) for t in teams_db]
