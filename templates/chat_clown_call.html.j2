@@ -6,14 +6,14 @@
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
     <div class="px-8" hx-ext="ws" ws-connect="/ws/">
-        <div class="fixed top-0 w-full">
+        <div class="fixed top-0 w-full" h-16>
             <div class="flex items-center space-x-32">
                 <h1 class="text-4xl font-bold text-blue-100">{{ department_name }}</h1>
                 <span class="text-2xl text-orange-50 ml-8" id="note-clowns-teams-presence" hx-swap-oob="true">Zur Zeit im Haus ...  Kein Team</span>
             </div>
             <h2 class="text-2xl font-bold text-blue-100">{{ department_descriptive_name }}</h2>
         </div>
-        <div class="pt-200">
+        <div class="pt-16">
             <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
                 <thead class="border-b text-lg">
                     <tr>
