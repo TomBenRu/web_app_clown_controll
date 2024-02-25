@@ -6,7 +6,7 @@
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
     <div class="px-8" hx-ext="ws" ws-connect="/ws/">
-        <div class="flex items-center space-x-32">
+        <div class="flex items-center space-x-32 fixed top-0 w-full">
             <h1 class="text-4xl font-bold text-blue-100">{{ department_name }}</h1>
             <span class="text-2xl text-orange-50 ml-8" id="note-clowns-teams-presence" hx-swap-oob="true">Zur Zeit im Haus ...  Kein Team</span>
         </div>
