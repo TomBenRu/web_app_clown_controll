@@ -1,1 +1,9 @@
-<input class="bg-sky-100 py-2 px-4 rounded-l-lg flex-grow w-full" id="input-chat-message" name="chat-message" hx-swap-oob="true" hx-trigger="hTMX:afterOnLoad" hx-vals='{"default": "true"}'>
+<input class="bg-sky-100 py-2 px-4 rounded-l-lg flex-grow w-full" id="input-chat-message" name="chat-message" hx-swap-oob="true" hx-trigger="hTMX:afterOnLoad" hx-swap="outerHTML" hx-vals='{"default": "true"}'>
+
+<script>
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+        if (event.detail.elt.id === 'input-chat-message') {
+            event.detail.elt.focus();
+        }
+    });
+</script>
