@@ -27,14 +27,13 @@
                     <tbody class="text-center text-sm" id="messages-responses">
                     </tbody>
             </table>
-
-            <form class="mt-4 w-9/10 mx-auto sticky bottom-0" id="form" ws-send>
-                <div class="flex">
-                    {% include "responses/empty_message_input.html" %}
-                    <button class="bg-cyan-500 font-bold hover:bg-emerald-500 py-2 px-4 rounded-r-lg ml-2" ws-send>send</button>
-                </div>
-            </form>
         </div>
+        <form class="mt-4 w-9/10 mx-auto sticky bottom-0" id="form" ws-send>
+            <div class="flex">
+                {% include "responses/empty_message_input.html" %}
+                <button class="bg-cyan-500 font-bold hover:bg-emerald-500 py-2 px-4 rounded-r-lg ml-2" ws-send>send</button>
+            </div>
+        </form>
     </div>
 
 </body>
