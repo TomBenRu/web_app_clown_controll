@@ -58,3 +58,9 @@ def delete_team(team_of_actor_id: str, token_data: schemas.TokenData = Depends(v
 def get_session_messages(team_of_actors_id: UUID):
     return [schemas.SessionMessageShow.model_validate(sm)
             for sm in db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, False)]
+
+
+@router.post('set_all_messages_to_unsent', dependencies=[Depends(verify_access_token__actor)])
+def set_all_messages_to_unsent(team_of_actors_id: UUID):
+    db_services.Actor.set_all_messages_to_unsent(team_of_actors_id)
+
