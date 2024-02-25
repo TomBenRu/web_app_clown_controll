@@ -278,4 +278,3 @@ class MessageHandler:
 #  Department-Browserfensters. -> Anlegen von Department-Session-Messages, die gelöscht werden, wenn alle Clowns.Teams
 #  abgemeldet sind. Auf Clowns-Team-Seite könnten die Messages, bevor der Department-Tab geschlossen wird,
 #  zwischengespeichert werden.
-# todo: gesonderter Department-Alert "Reconnected", kein Signalton
