@@ -65,3 +65,9 @@ def set_all_messages_to_unsent(team_of_actors_id: UUID):
     print(f'in set_all_messages_to_unsent()..................................... {team_of_actors_id=}')
     db_services.Actor.set_all_messages_to_unsent(team_of_actors_id)
 
+
+# todo: Wiederherstellen der Messages, auf Department-Seite und auf Clowns-Team-Seite beim Neuladen des
+#  Department-Browserfensters. -> Anlegen von Department-Session-Messages, die gelöscht werden, wenn alle Clowns.Teams
+#  abgemeldet sind. Auf Clowns-Team-Seite könnten die Messages, bevor der Department-Tab geschlossen wird,
+#  zwischengespeichert werden.
+# todo: gesonderter Department-Alert "Reconnected", kein Signalton
