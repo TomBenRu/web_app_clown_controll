@@ -60,7 +60,7 @@ def get_session_messages(team_of_actors_id: UUID):
             for sm in db_services.Actor.get_all_session_messages_of_team_of_actors(team_of_actors_id, False)]
 
 
-@router.post('set_all_messages_to_unsent', dependencies=[Depends(verify_access_token__actor)])
+@router.post('/set_all_messages_to_unsent', dependencies=[Depends(verify_access_token__actor)])
 def set_all_messages_to_unsent(team_of_actors_id: UUID):
     print(f'in set_all_messages_to_unsent()..................................... {team_of_actors_id=}')
     db_services.Actor.set_all_messages_to_unsent(team_of_actors_id)
