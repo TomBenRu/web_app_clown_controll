@@ -1,0 +1,7 @@
+<script>
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+        if (event.detail.elt.id === 'input-chat-message') {
+            event.detail.elt.focus();
+        }
+    });
+</script>
