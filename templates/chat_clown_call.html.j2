@@ -13,7 +13,7 @@
             </div>
             <h2 class="text-2xl font-bold text-blue-100">{{ department_descriptive_name }}</h2>
         </div>
-        <div class="pt-16">
+        <div class="pt-16 overflow-auto">
             <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
                 <thead class="border-b text-lg">
                     <tr>
@@ -28,7 +28,7 @@
                     </tbody>
             </table>
 
-            <form class="mt-4 w-9/10 mx-auto" id="form" ws-send>
+            <form class="mt-4 w-9/10 mx-auto sticky bottom-0" id="form" ws-send>
                 <div class="flex">
                     {% include "responses/empty_message_input.html" %}
                     <button class="bg-cyan-500 font-bold hover:bg-emerald-500 py-2 px-4 rounded-r-lg ml-2" ws-send>send</button>
