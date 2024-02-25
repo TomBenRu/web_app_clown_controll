@@ -269,3 +269,10 @@ class MessageHandler:
             db_services.Actor.set_session_message_as_sent(UUID(message['message_id']))
         except Exception as e:
             print(f'................................ Fehler in handle_confirmation_of_receipt(): {e=}')
+
+
+# todo: Wiederherstellen der Messages, auf Department-Seite und auf Clowns-Team-Seite beim Neuladen des
+#  Department-Browserfensters. -> Anlegen von Department-Session-Messages, die gelöscht werden, wenn alle Clowns.Teams
+#  abgemeldet sind. Auf Clowns-Team-Seite könnten die Messages, bevor der Department-Tab geschlossen wird,
+#  zwischengespeichert werden.
+# todo: gesonderter Department-Alert "Reconnected", kein Signalton
