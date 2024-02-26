@@ -29,7 +29,7 @@
                 <script>
                     document.body.addEventListener('htmx:oobAfterSwap', function(event) {
                         if (event.detail.elt.parentElement.id === 'messages-responses') {
-                            var element = element.getElementById('messages-container');
+                            var element = document.getElementById('messages-container');
                             element.scrollTop = element.scrollHeight;
                         }
     });
