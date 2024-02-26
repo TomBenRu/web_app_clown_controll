@@ -26,14 +26,6 @@
 
                 <tbody class="text-center text-sm" id="messages-responses">
                 </tbody>
-                <script>
-                    document.body.addEventListener('htmx:oobAfterSwap', function(event) {
-                        if (event.detail.elt.parentElement.id === 'messages-responses') {
-                            var element = document.getElementById('messages-container');
-                            element.scrollTop = element.scrollHeight;
-                        }
-    });
-                </script>
             </table>
         </div>
         <form class="mt-4 w-9/10 mx-auto" id="form" ws-send>
@@ -44,10 +36,12 @@
         </form>
     </div>
     <script>
-        function updateScroll(){
-            var element = document.getElementById("messages-responses");
-            element.scrollTop = element.scrollHeight;
-        }
+        document.body.addEventListener('htmx:oobAfterSwap', function(event) {
+            if (event.detail.elt.parentElement.id === 'messages-responses') {
+                var element = document.getElementById('messages-container');
+                element.scrollTop = element.scrollHeight;
+            }
+        });
     </script>
 
 </body>
