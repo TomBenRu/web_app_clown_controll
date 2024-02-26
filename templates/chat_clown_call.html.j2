@@ -13,23 +13,21 @@
             </div>
             <h2 class="text-2xl font-bold text-blue-100">{{ department_descriptive_name }}</h2>
         </div>
-        <div class="overflow-auto max-h-[calc(100vh-8rem)]">
-    <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
-        <thead class="border-b text-lg">
-            <tr>
-                <th class="border" p-1>Clowns-Team</th>
-                <th class="border" p-1>Zeit</th>
-                <th class="border" p-1>gesendet</th>  
-                <th class="border" p-1>empfangen</th>
-            </tr>
-        </thead>
-    </table>
-    <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
-        <tbody class="text-center text-sm" id="messages-responses">
-        </tbody>
-    </table>
-</div>
+        <div class="overflow-auto max-h-[calc(100vh-8rem)]" id="messages-container">
+            <table class="min-w-[50%] mb-4 bg-gradient-to-r from-teal-400 to-cyan-400 w-9/10 mx-auto mt-8">
+                <thead class="border-b text-lg">
+                    <tr>
+                        <th class="border" p-1>Clowns-Team</th>
+                        <th class="border" p-1>Zeit</th>
+                        <th class="border" p-1>gesendet</th>  
+                        <th class="border" p-1>empfangen</th>
+                    </tr>
+                </thead>
 
+                <tbody class="text-center text-sm" id="messages-responses">
+                </tbody>
+            </table>
+        </div>
         <form class="mt-4 w-9/10 mx-auto" id="form" ws-send>
             <div class="flex">
                 {% include "responses/empty_message_input.html" %}
