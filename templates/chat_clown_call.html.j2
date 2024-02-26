@@ -28,8 +28,9 @@
                 </tbody>
                 <script>
                     document.body.addEventListener('htmx:oobAfterSwap', function(event) {
-                        if (event.detail.elt.id === 'message-row') {
-                            document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight;
+                        if (event.detail.elt.parentElement.id === 'messages-responses') {
+                            var element = element.getElementById('messages-container');
+                            element.scrollTop = element.scrollHeight;
                         }
     });
                 </script>
