@@ -36,7 +36,7 @@
         </form>
     </div>
     <script>
-        document.body.addEventListener('htmx:oobAfterSwap', function(event) {
+        document.body.addEventListener('htmx:afterSwap', function(event) {
             if (event.detail.elt.parentElement.id === 'messages-responses') {
                 var element = document.getElementById('messages-container');
                 element.scrollTop = element.scrollHeight;
