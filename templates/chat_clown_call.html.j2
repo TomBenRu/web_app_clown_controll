@@ -2,6 +2,7 @@
 <html lang="en">
 {% include "head_htmx.html.j2" %}
 <body style="overflow: auto; display: block; background-image: url({{ url_for('static', path='background_clown_call.png') }}); background-size: cover;">
+    {% include "header_hhh.html.j2" %}
     {% include "responses/audio_alert.html.j2" %}
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
