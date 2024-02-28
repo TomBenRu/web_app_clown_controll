@@ -193,7 +193,7 @@ class MessageHandler:
             message_broadcast = templates.get_template('responses/clown_response.html.j2').render(
                 time=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
-                'responses/alert_message_received.html').render(team=f'Clowns-Team: {actors}')
+                'responses/alert_message_received.html').render(team=f'Clowns-Team: "{actors}"')
             message_personal = {'send_confirmation': data, 'time': str(now),
                                            'sender_id': websocket.headers.get('team_of_actors_id'),
                                            'receiver_id': receiver_id}
@@ -222,10 +222,10 @@ class MessageHandler:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
             if reconnect:
                 message_to_departments = (templates.get_template('responses/alert_clowns_team_reconnected.html.j2')
-                                          .render(team=f'Clowns-Team: {actors}'))
+                                          .render(team=f'Clowns-Team: "{actors}"'))
             else:
                 message_to_departments = (templates.get_template('responses/alert_clowns_team_joined.html.j2')
-                                          .render(team=f'Clowns-Team: {actors}'))
+                                          .render(team=f'Clowns-Team: "{actors}"'))
 
             await manager.send_alert_to_departments(websocket, message_to_departments, location_id)
             await manager.send_personal_clowns_team_message_departments_joined(websocket,
@@ -254,10 +254,10 @@ class MessageHandler:
             actors = ', '.join([a.artist_name for a in team_of_actors.actors])
             if connection_lost:
                 message = (templates.get_template('responses/alert_clowns_team_connection_lost.html.j2')
-                           .render(team=f'Clowns-Team: {actors}'))
+                           .render(team=f'Clowns-Team: "{actors}"'))
             else:
                 message = (templates.get_template('responses/alert_clowns_team_left.html.j2')
-                           .render(team=f'Clowns-Team: {actors}'))
+                           .render(team=f'Clowns-Team: "{actors}"'))
             await manager.send_alert_to_departments(websocket, message, location_id)
 
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
