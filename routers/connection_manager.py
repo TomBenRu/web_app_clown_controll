@@ -131,7 +131,7 @@ class ConnectionManager:
             token = ws.cookies['clown-call-auth']
             token_data = authentication.verify_access_token(AuthorizationTypes.department, token)
             message = {'department_id': str(token_data.id), 'joined': True,
-                       'time': time_now, 'reconnect': reconnect}
+                       'timestamp': time_now, 'reconnect': reconnect}
             message_id, message_with_id = self.add_message_id_to_message_and_dumps(message)
             self.save_message_to_db(message_with_id, message_id,
                                     UUID(websocket.headers.get('team_of_actors_id')))
@@ -181,20 +181,20 @@ class MessageHandler:
         now = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=1), 'Europe/Berlin'))
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
-            message_broadcast = {'department_id': str(token_data.id), 'message': data, 'time': str(now)}
+            message_broadcast = {'department_id': str(token_data.id), 'message': data, 'timestamp': str(now)}
             empty_input = templates.get_template('responses/empty_message_input.html').render()
             message_personal = templates.get_template('responses/clown_call_message.html.j2').render(
-                time=now.strftime('%H:%M:%S'), message=data)
+                timestamp=now.strftime('%H:%M:%S'), message=data)
             await manager.broadcast_clowns_teams(message_broadcast, websocket, location_id)
             await manager.send_personal_department_message(message_personal, websocket)
             await manager.send_personal_department_message(empty_input, websocket)
         else:
             actors = ', '.join(sorted(a.artist_name for a in team_of_actors.actors))
             message_broadcast = templates.get_template('responses/clown_response.html.j2').render(
-                time=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
+                timestamp=now.strftime('%H:%M:%S'), message=data, clowns_team=actors)
             alert_message_rsv = templates.get_template(
                 'responses/alert_message_received.html').render(team=f'Clowns-Team: "{actors}"')
-            message_personal = {'send_confirmation': data, 'time': str(now),
+            message_personal = {'send_confirmation': data, 'timestamp': str(now),
                                            'sender_id': websocket.headers.get('team_of_actors_id'),
                                            'receiver_id': receiver_id}
             await manager.broadcast_departments(alert_message_rsv, websocket, location_id, receiver_id)
@@ -210,7 +210,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             await manager.connect(websocket, True, location_id)
-            message = {'department_id': str(token_data.id), 'joined': True, 'time': str(now)}
+            message = {'department_id': str(token_data.id), 'joined': True, 'timestamp': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
             text_teams_online, text_teams_offline = get_text_clowns_teams_online_offline(location_id)
             note_presence = (templates.get_template('responses/note_clowns_teams_presence.html.j2')
@@ -246,8 +246,7 @@ class MessageHandler:
         user = db_services.User.get(token_data.id)
         if 'department' in token_data.authorizations:
             manager.disconnect(websocket, True, location_id, False)
-            message = {'department_id': str(token_data.id), 'left': True,
-                                  'time': str(now)}
+            message = {'department_id': str(token_data.id), 'left': True, 'timestamp': str(now)}
             await manager.send_alert_to_clown_teams(websocket, message, location_id)
         else:
             manager.disconnect(websocket, False, location_id, connection_lost)
