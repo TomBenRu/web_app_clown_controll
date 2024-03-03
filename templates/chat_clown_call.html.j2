@@ -6,7 +6,7 @@
     {% include "responses/audio_alert.html.j2" %}
     <div id="alerts" class="fixed top-0 right-0 m-8 space-y-4"></div>
 
-    <div class="px-2 md:px-4 lg:px-8 pt-4" hx-ext="ws" ws-connect="/ws/">
+    <div class="mx-2 md:mx-4 lg:mx-8 pt-4" hx-ext="ws" ws-connect="/ws/">
         <div>
             <div class="flex items-center space-x-4 md:spacex-8 lg-space-x-32">
                 <h1 class="text-base md:text-2xl lg:text-4xl font-bold text-blue-100">{{ department_name }}</h1>
