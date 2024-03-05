@@ -19,10 +19,8 @@ class ConnectionManager:
     def __init__(self):
         self.active_department_connections: defaultdict[UUID, set[WebSocket]] = defaultdict(set)
         self.active_clowns_teams_connections: defaultdict[UUID, set[WebSocket]] = defaultdict(set)
-        # self.disconnected_clowns_teams: defaultdict[UUID, set[str]] = defaultdict(set)
 
     async def connect(self, websocket: WebSocket, department: bool, location_id: UUID):
-        teams_of_actors_db = db_services.Actor.get_all_teams_of_actors(location_id)
         await websocket.accept()
         if department:
             self.active_department_connections[location_id].add(websocket)
@@ -35,10 +33,6 @@ class ConnectionManager:
                     self.active_clowns_teams_connections[location_id].remove(con)
                     break
             self.active_clowns_teams_connections[location_id].add(websocket)
-            # if (t_of_a_id := websocket.headers.get("team_of_actors_id")) in self.disconnected_clowns_teams[location_id]:
-            #     self.disconnected_clowns_teams[location_id].remove(t_of_a_id)
-            #     if not self.disconnected_clowns_teams[location_id]:
-            #         del self.disconnected_clowns_teams[location_id]
 
             unsent_messages = db_services.Actor.get_all_session_messages_of_team_of_actors(UUID(team_of_actors_id),
                                                                                            True)
