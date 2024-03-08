@@ -14,7 +14,8 @@ class CreateAdmin(Command):
         db_services.SuperUser.delete_person(self.created_admin.id)
 
     def redo(self):
-        db_services.SuperUser.create_person(self.admin, self.created_admin.id)
+        admin_to_create = schemas.PersonCreate(id=self.created_admin.id, **self.admin.dict())
+        db_services.SuperUser.create_person(admin_to_create)
 
 
 class CreateInstitutionActors(Command):
