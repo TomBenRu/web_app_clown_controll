@@ -41,9 +41,9 @@ async def websocket_endpoint(websocket: WebSocket):  # todo: user muss sich mit 
             print(f'..........................{data_dict=}', flush=True)
             if data_dict.get('closing'):
                 print('...........................closing')
-                await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, False)
                 await MessageHandler.handle_message(message, websocket, token_data, team_of_actors, location_id,
                                                     receiver_id, closing=True)
+                await MessageHandler.user_leave_message(token_data, websocket, team_of_actors, location_id, False)
                 return
             if data_dict.get('confirmation_of_receipt'):
                 print(f'..................................confirmation_of_receipt: {data_dict}')
