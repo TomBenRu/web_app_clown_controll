@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -5,7 +7,13 @@ from fastapi.staticfiles import StaticFiles
 from database import db
 from routers import websocket, department, auth, super_user, admin, index, actors, connection_test
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.start_db()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 static_files = StaticFiles(directory="static")
 app.mount("/static", static_files, name="static")
 
@@ -17,8 +25,6 @@ app.include_router(admin.router)
 app.include_router(index.router)
 app.include_router(actors.router)
 app.include_router(connection_test.router)
-
-db.start_db()
 
 
 def run():
