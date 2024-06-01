@@ -42,7 +42,6 @@ class User:
         user_db = models.User.get(id=user_id)
         return get_schema_of_user(user_db)
 
-
     @staticmethod
     @db_session
     def get_user_by_username(username: str):
