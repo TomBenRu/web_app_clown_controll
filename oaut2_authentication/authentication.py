@@ -1,6 +1,7 @@
 import datetime
 from functools import partial
 
+import requests
 from fastapi import HTTPException, status, Request, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -14,6 +15,7 @@ from system_settings import settings
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+AUTH_SERVER_URL = 'https://hcc-plan-api.onrender.com'
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
@@ -79,6 +81,11 @@ def get_authorization_types(
 def authenticate_user(
         username: str, password: str) -> schemas.SuperUser | schemas.Person | schemas.Department | schemas.Actor:
     if not (user := db_services.User.get_user_by_username(username)):
+        try:
+            response = requests.post(f'{AUTH_SERVER_URL}/token', data={'username': username, 'password': password})
+            print(f'Authentication Actor: {response.json()}')
+        except Exception as e:
+            raise credentials_exception from e
         raise credentials_exception
     if not verify(password, user.password):
         raise credentials_exception
