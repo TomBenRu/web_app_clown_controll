@@ -282,6 +282,12 @@ class SuperUser:
 
     @staticmethod
     @db_session
+    def get_institution_actors_id_from_name(name: str) -> UUID:
+        institution_actors_db = models.InstitutionActors.get(name=name)
+        return institution_actors_db.id
+
+    @staticmethod
+    @db_session
     def create_institution_actors(institution_actors: schemas.InstitutionActorsCreate) -> schemas.InstitutionActorsShow:
         admin_db = models.Person.get(id=institution_actors.admin_id)
         institution_db = models.InstitutionActors(name=institution_actors.name, admin=admin_db)

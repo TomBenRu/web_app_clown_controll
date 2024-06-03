@@ -89,7 +89,9 @@ def authenticate_user(
                                       password=password,
                                       f_name=response.json()['f_name'],
                                       l_name=response.json()['l_name'],
-                                      artist_name=response.json()['artist_name']),
+                                      artist_name=response.json()['artist_name'],
+                                      institution_actors_id=db_services.SuperUser.get_institution_actors_id_from_name(
+                                          response.json()['institution_actors'])),
                   flush=True)
         except Exception as e:
             raise credentials_exception from e
