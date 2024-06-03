@@ -90,6 +90,12 @@ class ConnectionManager:
         )
 
     async def broadcast_clowns_teams(self, message: dict, original_websocket: WebSocket, location_id: UUID):
+        """Zuerst wird die Nachricht über alle Websockets in self.active_clowns_teams_connections gesendet und mit
+        sent = None als neue SessionMessage in der Datenbank gespeichert (Bei Empfangsbestätigung wird die
+        SessionMessage mit sent = 'Empfangszeitpunkt' upgedatet).
+        Dann wird die Nachricht an für alle übrigen TeamOfActors (welche folglich vorübergehend nicht verbunden sind)
+        in der Datenbank mit sent = None gespeichert, um die nach einem Wiederverbinden des jeweiligen Teams
+        zu senden."""
         teams_of_actors_db_ids = {t.id for t in db_services.Actor.get_all_teams_of_actors(location_id)}
         for ws in self.active_clowns_teams_connections[location_id]:
             team_of_actors_id = UUID(ws.headers.get('team_of_actors_id'))
@@ -262,6 +268,9 @@ class MessageHandler:
 
     @staticmethod
     def handle_confirmation_of_receipt(message: dict):
+        """Wenn die Empfangsbestätigung vom TeamOfActors geschickt wird, wird die entsprechende Session-Message in der
+        Datenbank als gelesen markiert und nach einem Verbindungsabbruch und anschließendem Reconnect nicht erneut
+        übertragen."""
         try:
             db_services.Actor.set_session_message_as_sent(UUID(message['message_id']))
         except Exception as e:
