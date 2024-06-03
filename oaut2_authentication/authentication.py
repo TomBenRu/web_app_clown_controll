@@ -85,6 +85,12 @@ def authenticate_user(
             response = requests.post(f'{AUTH_SERVER_URL}/user-login-from-clown-control',
                                      data={'username': username, 'password': password}, timeout=5)
             print(f'Authentication Actor: {response.json()}', flush=True)
+            print(schemas.ActorCreate(username=username,
+                                      password=password,
+                                      f_name=response.json()['f_name'],
+                                      l_name=response.json()['l_name'],
+                                      artist_name=response.json()['artist_name']),
+                  flush=True)
         except Exception as e:
             raise credentials_exception from e
         raise credentials_exception
