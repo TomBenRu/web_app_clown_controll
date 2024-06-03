@@ -82,7 +82,9 @@ def authenticate_user(
         username: str, password: str) -> schemas.SuperUser | schemas.Person | schemas.Department | schemas.Actor:
     if not (user := db_services.User.get_user_by_username(username)):
         try:
-            response = requests.post(f'{AUTH_SERVER_URL}/token', data={'username': username, 'password': password})
+            response = requests.post(f'{AUTH_SERVER_URL}/user-login-from-clown-control',
+
+                                     data={'username': username, 'password': password}, timeout=5)
             print(f'Authentication Actor: {response.json()}')
         except Exception as e:
             raise credentials_exception from e
